@@ -241,7 +241,9 @@ function openReader(postId) {
       </button>
       <span style="font-size:0.85rem;font-weight:700;color:var(--slate-600);">${comments.length} Citizen Responses</span>
     </div>
-
+    
+  <button class="read-more-btn" onclick="openReader(${post.id})">Read Full &rarr;</button>
+</div>
     <h4 style="margin-bottom:0.75rem;color:var(--navy-900);">Constituent Townhall Comments</h4>
     <div class="comment-list" style="max-height:240px;margin-bottom:1rem;">
       ${
@@ -294,8 +296,115 @@ async function submitModalComment(event, postId) {
   }
 }
 
+let editingPostId = null;
+
+function getSavedAdminKey() {
+  return sessionStorage.getItem('campaign_admin_key') || '';
+}
+
+function saveAdminKey(key) {
+  if (key) {
+    sessionStorage.setItem('campaign_admin_key', key);
+  }
+}
+
+// Prompt for or reuse ADMIN_SECRET when clicking Edit or Delete
+function requestAdminPasskey(promptMessage = 'Enter Campaign Admin Passkey:') {
+  const existing = getSavedAdminKey();
+  const entered = window.prompt(promptMessage, existing);
+  if (entered === null) return null; // User cancelled
+  const trimmed = entered.trim();
+  if (!trimmed) {
+    alert('Admin passkey is required.');
+    return null;
+  }
+  saveAdminKey(trimmed);
+  return trimmed;
+}
+
+// Open modal in CREATE mode
 function openAdminModal() {
+  editingPostId = null;
+  const form = document.getElementById('createPostForm');
+  const headerTitle = document.querySelector('#adminModal .modal-header h3');
+  const submitBtn = document.getElementById('publishSubmitBtn');
+
+  if (headerTitle) headerTitle.textContent = 'Publish Campaign Dispatch';
+  if (submitBtn) submitBtn.textContent = 'Publish Live to Turso';
+
+  form.reset();
+  const keyInput = document.getElementById('adminKey');
+  if (keyInput) keyInput.value = getSavedAdminKey();
+
   document.getElementById('adminModal').classList.add('open');
+}
+
+// Open modal in EDIT mode pre-filled with the selected post
+function openEditPost(postId) {
+  const numericId = Number(postId);
+  const post = posts.find((p) => Number(p.id) === numericId);
+  if (!post) return;
+
+  const passkey = requestAdminPasskey('Enter Campaign Admin Passkey to edit this dispatch:');
+  if (!passkey) return;
+
+  editingPostId = numericId;
+  const headerTitle = document.querySelector('#adminModal .modal-header h3');
+  const submitBtn = document.getElementById('publishSubmitBtn');
+
+  if (headerTitle) headerTitle.textContent = 'Edit Campaign Dispatch';
+  if (submitBtn) submitBtn.textContent = 'Save Changes to Turso';
+
+  document.getElementById('adminKey').value = passkey;
+  document.getElementById('postTitle').value = post.title || '';
+  document.getElementById('postCategory').value = post.category || 'Manifesto & Policy';
+  document.getElementById('postWard').value = post.ward || 'All Wards';
+  document.getElementById('postImage').value = post.image_url || '';
+  document.getElementById('postSummary').value = post.summary || '';
+  document.getElementById('postContent').value = post.content || '';
+
+  document.getElementById('adminModal').classList.add('open');
+}
+
+// Delete a post after confirmation + ADMIN_SECRET check
+async function handleDeletePost(postId) {
+  const numericId = Number(postId);
+  const post = posts.find((p) => Number(p.id) === numericId);
+  const label = post ? `"${post.title}"` : `dispatch #${numericId}`;
+
+  if (!window.confirm(`Delete ${label}? This will also remove its comments.`)) {
+    return;
+  }
+
+  const passkey = requestAdminPasskey('Enter Campaign Admin Passkey to confirm deletion:');
+  if (!passkey) return;
+
+  try {
+    const res = await fetch(`/api/posts/${numericId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-key': passkey
+      },
+      body: JSON.stringify({ adminKey: passkey })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      if (res.status === 401) sessionStorage.removeItem('campaign_admin_key');
+      throw new Error(data.error || 'Failed to delete dispatch');
+    }
+
+    posts = posts.filter((p) => Number(p.id) !== numericId);
+    openCommentDrawers.delete(numericId);
+    renderPosts();
+
+    if (document.getElementById('readerModal').classList.contains('open')) {
+      closeModal('readerModal');
+    }
+  } catch (err) {
+    alert(err.message);
+  }
 }
 
 function closeModal(id) {
@@ -336,14 +445,22 @@ function resetFilters(e) {
   renderPosts();
 }
 
-document.getElementById('createPostForm').addEventListener('submit', async (e) => {
+// Replace your createPostForm submit listener with this combined Create + Update handler
+const postFormEl = document.getElementById('createPostForm');
+const freshFormEl = postFormEl.cloneNode(true);
+postFormEl.parentNode.replaceChild(freshFormEl, postFormEl);
+
+freshFormEl.addEventListener('submit', async (e) => {
   e.preventDefault();
   const btn = document.getElementById('publishSubmitBtn');
-  btn.disabled = true;
-  btn.textContent = 'Publishing to Turso...';
+  const isEditing = editingPostId !== null;
 
+  btn.disabled = true;
+  btn.textContent = isEditing ? 'Updating Turso...' : 'Publishing to Turso...';
+
+  const adminKeyVal = document.getElementById('adminKey').value.trim();
   const payload = {
-    adminKey: document.getElementById('adminKey').value.trim(),
+    adminKey: adminKeyVal,
     title: document.getElementById('postTitle').value.trim(),
     category: document.getElementById('postCategory').value,
     ward: document.getElementById('postWard').value.trim() || 'All Wards',
@@ -352,27 +469,44 @@ document.getElementById('createPostForm').addEventListener('submit', async (e) =
     content: document.getElementById('postContent').value.trim()
   };
 
+  const url = isEditing ? `/api/posts/${editingPostId}` : '/api/posts';
+  const method = isEditing ? 'PUT' : 'POST';
+
   try {
-    const res = await fetch('/api/posts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-key': adminKeyVal
+      },
       body: JSON.stringify(payload)
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to publish');
 
-    posts.unshift(data);
+    const data = await res.json();
+    if (!res.ok) {
+      if (res.status === 401) sessionStorage.removeItem('campaign_admin_key');
+      throw new Error(data.error || 'Request failed');
+    }
+
+    saveAdminKey(adminKeyVal);
+
+    if (isEditing) {
+      posts = posts.map((p) => (Number(p.id) === Number(editingPostId) ? data : p));
+    } else {
+      posts.unshift(data);
+    }
+
     renderPosts();
-    e.target.reset();
+    freshFormEl.reset();
+    editingPostId = null;
     closeModal('adminModal');
   } catch (err) {
     alert(err.message);
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Publish Live to Turso';
+    btn.textContent = editingPostId !== null ? 'Save Changes to Turso' : 'Publish Live to Turso';
   }
 });
-
 document.getElementById('categoryTabs').addEventListener('click', (e) => {
   if (!e.target.classList.contains('tab-btn')) return;
   document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));

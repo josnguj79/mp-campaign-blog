@@ -34,6 +34,17 @@ const db = createClient({
   authToken: dbUrl ? dbToken : undefined,
 });
 
+// Helper to verify ADMIN_SECRET from body or header
+function isAuthorizedAdmin(req) {
+  const secret = (process.env.ADMIN_SECRET || '').trim();
+  if (!secret) return true; // Open if ADMIN_SECRET is not configured
+  const provided =
+    (req.body && req.body.adminKey) ||
+    req.headers['x-admin-key'] ||
+    '';
+  return String(provided).trim() === secret;
+}
+
 // Initialize Turso Schema & Seed Initial Posts
 async function initDatabase() {
   await db.batch([
@@ -61,7 +72,7 @@ async function initDatabase() {
 
   // Seed initial dispatches if database is empty
   const existing = await db.execute('SELECT COUNT(*) as count FROM posts');
-  if (existing.rows[0].count === 0) {
+  if (Number(existing.rows[0].count) === 0) {
     await db.batch([
       {
         sql: `INSERT INTO posts (title, category, ward, summary, content, image_url, likes)
@@ -93,6 +104,14 @@ async function initDatabase() {
   }
 }
 
+// POST verify ADMIN_SECRET on Secretariat login screen
+app.post('/api/admin/verify', (req, res) => {
+  if (!isAuthorizedAdmin(req)) {
+    return res.status(401).json({ error: 'Invalid Campaign Admin Passkey' });
+  }
+  res.json({ authenticated: true });
+});
+
 // GET all posts with nested comments
 app.get('/api/posts', async (req, res) => {
   try {
@@ -119,9 +138,9 @@ app.get('/api/posts', async (req, res) => {
 
 // POST create a new dispatch (Protected by ADMIN_SECRET)
 app.post('/api/posts', async (req, res) => {
-  const { title, category, ward, summary, content, image_url, adminKey } = req.body;
+  const { title, category, ward, summary, content, image_url } = req.body || {};
 
-  if (process.env.ADMIN_SECRET && adminKey !== process.env.ADMIN_SECRET) {
+  if (!isAuthorizedAdmin(req)) {
     return res.status(401).json({ error: 'Invalid Campaign Admin Passkey' });
   }
   if (!title || !content) {
@@ -136,15 +155,107 @@ app.post('/api/posts', async (req, res) => {
         title.trim(),
         category || 'Manifesto & Policy',
         ward || 'All Wards',
-        summary || content.slice(0, 140) + '...',
+        summary || content.trim().slice(0, 140) + '...',
         content.trim(),
-        image_url || 'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=1000&q=80'
+        image_url && image_url.trim()
+          ? image_url.trim()
+          : 'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=1000&q=80'
       ]
     });
     res.status(201).json({ ...result.rows[0], comments: [] });
   } catch (err) {
     console.error('Error creating post:', err);
     res.status(500).json({ error: 'Failed to publish dispatch' });
+  }
+});
+
+// PUT update an existing dispatch (Protected by ADMIN_SECRET)
+app.put('/api/posts/:id', async (req, res) => {
+  const postId = Number(req.params.id);
+  const { title, category, ward, summary, content, image_url } = req.body || {};
+
+  if (!Number.isInteger(postId) || postId <= 0) {
+    return res.status(400).json({ error: 'Invalid post ID' });
+  }
+  if (!isAuthorizedAdmin(req)) {
+    return res.status(401).json({ error: 'Invalid Campaign Admin Passkey' });
+  }
+  if (!title || !content) {
+    return res.status(400).json({ error: 'Title and content are required' });
+  }
+
+  try {
+    const existing = await db.execute({
+      sql: 'SELECT * FROM posts WHERE id = ?',
+      args: [postId]
+    });
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ error: 'Dispatch not found' });
+    }
+
+    const current = existing.rows[0];
+    const nextTitle = title.trim();
+    const nextCategory = (category || current.category || 'Manifesto & Policy').trim();
+    const nextWard = (ward || current.ward || 'All Wards').trim();
+    const nextSummary = (summary || content.trim().slice(0, 140) + '...').trim();
+    const nextContent = content.trim();
+    const nextImage =
+      image_url && image_url.trim()
+        ? image_url.trim()
+        : current.image_url || 'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=1000&q=80';
+
+    const updated = await db.execute({
+      sql: `UPDATE posts
+            SET title = ?, category = ?, ward = ?, summary = ?, content = ?, image_url = ?
+            WHERE id = ?
+            RETURNING *`,
+      args: [nextTitle, nextCategory, nextWard, nextSummary, nextContent, nextImage, postId]
+    });
+
+    const commentsRes = await db.execute({
+      sql: 'SELECT * FROM comments WHERE post_id = ? ORDER BY created_at ASC',
+      args: [postId]
+    });
+
+    res.json({
+      ...updated.rows[0],
+      comments: commentsRes.rows || []
+    });
+  } catch (err) {
+    console.error('Error updating post:', err);
+    res.status(500).json({ error: 'Failed to update dispatch' });
+  }
+});
+
+// DELETE remove a dispatch and its comments (Protected by ADMIN_SECRET)
+app.delete('/api/posts/:id', async (req, res) => {
+  const postId = Number(req.params.id);
+
+  if (!Number.isInteger(postId) || postId <= 0) {
+    return res.status(400).json({ error: 'Invalid post ID' });
+  }
+  if (!isAuthorizedAdmin(req)) {
+    return res.status(401).json({ error: 'Invalid Campaign Admin Passkey' });
+  }
+
+  try {
+    const deleted = await db.execute({
+      sql: 'DELETE FROM posts WHERE id = ? RETURNING id',
+      args: [postId]
+    });
+    if (deleted.rows.length === 0) {
+      return res.status(404).json({ error: 'Dispatch not found' });
+    }
+
+    await db.execute({
+      sql: 'DELETE FROM comments WHERE post_id = ?',
+      args: [postId]
+    });
+
+    res.json({ deleted: true, id: postId });
+  } catch (err) {
+    console.error('Error deleting post:', err);
+    res.status(500).json({ error: 'Failed to delete dispatch' });
   }
 });
 
@@ -181,7 +292,7 @@ app.post('/api/posts/:id/like', async (req, res) => {
 // POST add a constituent comment
 app.post('/api/posts/:id/comments', async (req, res) => {
   const postId = Number(req.params.id);
-  const { author_name, ward, body } = req.body;
+  const { author_name, ward, body } = req.body || {};
 
   if (!author_name || !body) {
     return res.status(400).json({ error: 'Name and comment text are required' });
@@ -198,6 +309,37 @@ app.post('/api/posts/:id/comments', async (req, res) => {
     console.error('Error posting comment:', err);
     res.status(500).json({ error: 'Failed to post comment' });
   }
+});
+
+// DELETE moderate/remove a constituent comment (Protected by ADMIN_SECRET)
+app.delete('/api/comments/:id', async (req, res) => {
+  const commentId = Number(req.params.id);
+
+  if (!Number.isInteger(commentId) || commentId <= 0) {
+    return res.status(400).json({ error: 'Invalid comment ID' });
+  }
+  if (!isAuthorizedAdmin(req)) {
+    return res.status(401).json({ error: 'Invalid Campaign Admin Passkey' });
+  }
+
+  try {
+    const deleted = await db.execute({
+      sql: 'DELETE FROM comments WHERE id = ? RETURNING id',
+      args: [commentId]
+    });
+    if (deleted.rows.length === 0) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+    res.json({ deleted: true, id: commentId });
+  } catch (err) {
+    console.error('Error deleting comment:', err);
+    res.status(500).json({ error: 'Failed to delete comment' });
+  }
+});
+
+// Serve Secretariat Dashboard at /admin (before wildcard fallback)
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
 // Express 5 wildcard fallback route

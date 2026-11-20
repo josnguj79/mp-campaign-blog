@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Secretariat Command Center | Hon. David Kamau 2027</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy-950: #071326;
+      --navy-900: #0c1f3d;
+      --navy-800: #132d56;
+      --emerald-600: #047857;
+      --emerald-100: #d1fae5;
+      --gold-500: #d97706;
+      --gold-400: #f59e0b;
+      --slate-900: #0f172a;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748b;
+      --slate-200: #e2e8f0;
+      --slate-100: #f1f5f9;
+      --slate-50: #f8fafc;
+      --white: #ffffff;
+      --danger: #dc2626;
+      --danger-100: #fee2e2;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --shadow-sm: 0 2px 8px rgba(7, 19, 38, 0.06);
+      --shadow-md: 0 12px 28px rgba(7, 19, 38, 0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--slate-100);
+      color: var(--slate-900);
+      line-height: 1.55;
+    }
+    h1, h2, h3 { font-family: 'Merriweather', Georgia, serif; }
+
+    /* Top Header */
+    header {
+      background: var(--navy-950);
+      color: var(--white);
+      border-bottom: 3px solid var(--gold-500);
+      padding: 0.9rem 1.5rem;
+    }
+    .header-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+    .brand { display: flex; align-items: center; gap: 0.75rem; }
+    .badge-dk {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--emerald-600), var(--gold-500));
+      display: grid; place-items: center; font-weight: 800;
+    }
+    .header-actions { display: flex; align-items: center; gap: 0.75rem; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+      padding: 0.55rem 1.05rem; border-radius: var(--radius-sm);
+      font-weight: 700; font-size: 0.85rem; cursor: pointer;
+      border: 1px solid transparent; text-decoration: none; font-family: inherit;
+    }
+    .btn-primary { background: var(--emerald-600); color: var(--white); }
+    .btn-primary:hover { background: #065f46; }
+    .btn-outline-light { background: rgba(255,255,255,0.08); color: var(--white); border-color: rgba(255,255,255,0.2); }
+    .btn-outline-light:hover { background: rgba(255,255,255,0.16); }
+    .btn-danger { background: var(--danger-100); color: var(--danger); border-color: #fca5a5; }
+    .btn-danger:hover { background: #fecaca; }
+    .btn-edit { background: var(--slate-100); color: var(--navy-900); border-color: var(--slate-200); }
+    .btn-edit:hover { background: var(--slate-200); }
+
+    /* Login Gate */
+    .login-wrapper {
+      min-height: calc(100vh - 72px);
+      display: grid;
+      place-items: center;
+      padding: 1.5rem;
+    }
+    .login-card {
+      background: var(--white);
+      width: 100%;
+      max-width: 420px;
+      padding: 2rem;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--slate-200);
+    }
+    .login-card h2 { font-size: 1.35rem; color: var(--navy-900); margin-bottom: 0.4rem; }
+    .login-card p { font-size: 0.88rem; color: var(--slate-600); margin-bottom: 1.35rem; }
+
+    /* Dashboard Layout */
+    .dashboard {
+      max-width: 1240px;
+      margin: 1.75rem auto 4rem;
+      padding: 0 1.5rem;
+      display: none;
+    }
+    .dashboard.active { display: block; }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+    .kpi-card {
+      background: var(--white);
+      padding: 1.25rem 1.5rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--slate-200);
+      box-shadow: var(--shadow-sm);
+    }
+    .kpi-card span { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--slate-500); }
+    .kpi-card strong { display: block; font-size: 1.85rem; color: var(--navy-900); margin-top: 0.25rem; }
+
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 1.75rem;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--slate-200);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+    .panel-header {
+      padding: 1.1rem 1.35rem;
+      border-bottom: 1px solid var(--slate-200);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--slate-50);
+    }
+    .panel-header h3 { font-size: 1.02rem; color: var(--navy-900); }
+    .panel-body { padding: 1.35rem; }
+
+    .form-group { margin-bottom: 0.9rem; }
+    .form-group label { display: block; font-size: 0.8rem; font-weight: 700; color: var(--navy-900); margin-bottom: 0.3rem; }
+    .form-input {
+      width: 100%; padding: 0.55rem 0.75rem;
+      border: 1px solid var(--slate-200); border-radius: var(--radius-sm);
+      font-size: 0.86rem; font-family: inherit;
+    }
+    .form-input:focus { outline: none; border-color: var(--emerald-600); }
+    textarea.form-input { min-height: 110px; resize: vertical; }
+
+    /* Tabs */
+    .admin-tabs { display: flex; gap: 0.5rem; }
+    .admin-tab {
+      padding: 0.45rem 0.95rem; border-radius: 999px; border: none;
+      font-weight: 700; font-size: 0.82rem; cursor: pointer;
+      background: var(--slate-200); color: var(--slate-700);
+    }
+    .admin-tab.active { background: var(--navy-900); color: var(--white); }
+    .comment-filter-bar {
+      display: none;
+      padding: 0.85rem 1.35rem;
+      background: var(--slate-50);
+      border-bottom: 1px solid var(--slate-200);
+      gap: 0.65rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .comment-filter-bar.active {
+      display: flex;
+    }
+    .comment-filter-bar input,
+    .comment-filter-bar select {
+      padding: 0.48rem 0.75rem;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      font-size: 0.84rem;
+      font-family: inherit;
+      background: var(--white);
+    }
+    .comment-filter-bar input {
+      flex: 1;
+      min-width: 190px;
+    }
+    .comment-filter-bar input:focus,
+    .comment-filter-bar select:focus {
+      outline: none;
+      border-color: var(--emerald-600);
+    }
+    /* Manage List Items */
+    .item-row {
+      padding: 1rem 1.35rem;
+      border-bottom: 1px solid var(--slate-200);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .item-row:last-child { border-bottom: none; }
+    .item-meta { font-size: 0.76rem; font-weight: 700; color: var(--emerald-600); margin-bottom: 0.25rem; }
+    .item-title { font-weight: 800; color: var(--navy-900); font-size: 0.98rem; margin-bottom: 0.25rem; }
+    .item-desc { font-size: 0.85rem; color: var(--slate-600); }
+    .item-actions { display: flex; gap: 0.45rem; flex-shrink: 0; }
+
+    @media (max-width: 960px) {
+      .workspace-grid { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="badge-dk">DK</div>
+        <div>
+          <h1 style="font-size:1.05rem;">Secretariat Command Center</h1>
+          <p style="font-size:0.74rem;color:var(--gold-400);font-weight:700;">Hon. David Kamau 2027 &bull; Editorial &amp; Moderation</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a href="/" class="btn btn-outline-light">&larr; Public Citizen View</a>
+        <button id="logoutBtn" class="btn btn-danger" style="display:none;" onclick="logoutAdmin()">Lock Session</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Step 1: Secretariat Login Gate -->
+  <section class="login-wrapper" id="loginGate">
+    <div class="login-card">
+      <h2>Secretariat Authentication</h2>
+      <p>Enter your campaign passkey (<code>ADMIN_SECRET</code>) to manage dispatches and moderate citizen comments.</p>
+      <form id="adminLoginForm">
+        <div class="form-group">
+          <label for="loginPasskey">Campaign Passkey</label>
+          <input type="password" id="loginPasskey" class="form-input" placeholder="Enter ADMIN_SECRET" required />
+        </div>
+        <button type="submit" id="loginSubmitBtn" class="btn btn-primary" style="width:100%;">Unlock Dashboard</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Step 2: Unlocked Secretariat Workspace -->
+  <main class="dashboard" id="dashboardArea">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <span>Total Dispatches</span>
+        <strong id="kpiPosts">0</strong>
+      </div>
+      <div class="kpi-card">
+        <span>Total Citizen Endorsements</span>
+        <strong id="kpiLikes">0</strong>
+      </div>
+      <div class="kpi-card">
+        <span>Constituent Comments</span>
+        <strong id="kpiComments">0</strong>
+      </div>
+    </div>
+
+    <div class="workspace-grid">
+      <!-- Left Column: Create / Edit Post Form -->
+      <section class="panel">
+        <div class="panel-header">
+          <h3 id="editorHeading">Draft New Dispatch</h3>
+          <button type="button" id="cancelEditBtn" class="btn btn-edit" style="display:none;padding:0.3rem 0.65rem;font-size:0.76rem;" onclick="resetEditor()">Cancel Edit</button>
+        </div>
+        <div class="panel-body">
+          <form id="dispatchForm">
+            <div class="form-group">
+              <label for="postTitle">Headline *</label>
+              <input type="text" id="postTitle" class="form-input" placeholder="e.g., NG-CDF Bursary Cheque Issuance" required />
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;">
+              <div class="form-group">
+                <label for="postCategory">Category</label>
+                <select id="postCategory" class="form-input">
+                  <option value="Manifesto & Policy">Manifesto &amp; Policy</option>
+                  <option value="Constituency Tours">Constituency Tours</option>
+                  <option value="Youth & Economy">Youth &amp; Economy</option>
+                  <option value="Press Releases">Press Releases</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="postWard">Ward</label>
+                <input type="text" id="postWard" class="form-input" value="All Wards" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="postImage">Cover Image URL</label>
+              <input type="url" id="postImage" class="form-input" placeholder="https://images.unsplash.com/..." />
+            </div>
+            <div class="form-group">
+              <label for="postSummary">Card Summary *</label>
+              <input type="text" id="postSummary" class="form-input" placeholder="Short 1-sentence summary" required />
+            </div>
+            <div class="form-group">
+              <label for="postContent">Full Article Content *</label>
+              <textarea id="postContent" class="form-input" placeholder="Write the full policy or tour report..." required></textarea>
+            </div>
+            <button type="submit" id="saveDispatchBtn" class="btn btn-primary" style="width:100%;">Publish Live Dispatch</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- Right Column: Posts & Comments Moderation -->
+      <section class="panel">
+        <div class="panel-header">
+          <div class="admin-tabs">
+            <button class="admin-tab active" id="tabPostsBtn" onclick="switchAdminTab('posts')">Dispatches (<span id="tabPostCount">0</span>)</button>
+            <button class="admin-tab" id="tabCommentsBtn" onclick="switchAdminTab('comments')">Comment Moderation (<span id="tabCommentCount">0</span>)</button>
+          </div>
+        </div>
+        <div class="comment-filter-bar" id="commentFilterBar">
+          <input
+            type="text"
+            id="commentSearchInput"
+            placeholder="Search author, comment text, or dispatch..."
+            oninput="handleCommentFilterChange()"
+          />
+          <select id="commentWardSelect" onchange="handleCommentFilterChange()">
+            <option value="All">All Wards</option>
+          </select>
+          <button
+            type="button"
+            class="btn btn-edit"
+            style="padding:0.45rem 0.75rem;font-size:0.78rem;"
+            onclick="resetCommentFilters()"
+          >Reset</button>
+        </div>
+        <div id="moderationList"></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="/admin.js"></script>
+</body>
+</html>

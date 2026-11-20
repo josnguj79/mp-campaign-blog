@@ -1,0 +1,327 @@
+let posts = [];
+let editingPostId = null;
+let currentTab = 'posts';
+let commentSearchQuery = '';
+let selectedCommentWard = 'All';
+
+function getAdminKey() {
+  return sessionStorage.getItem('campaign_admin_key') || '';
+}
+
+function escapeHTML(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+async function verifyAndUnlock(passkey) {
+  const res = await fetch('/api/admin/verify', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-admin-key': passkey
+    },
+    body: JSON.stringify({ adminKey: passkey })
+  });
+
+  if (!res.ok) {
+    sessionStorage.removeItem('campaign_admin_key');
+    throw new Error('Invalid Campaign Admin Passkey');
+  }
+
+  sessionStorage.setItem('campaign_admin_key', passkey);
+  document.getElementById('loginGate').style.display = 'none';
+  document.getElementById('dashboardArea').classList.add('active');
+  document.getElementById('logoutBtn').style.display = 'inline-flex';
+  await loadDashboardData();
+}
+
+function logoutAdmin() {
+  sessionStorage.removeItem('campaign_admin_key');
+  location.reload();
+}
+
+document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('loginSubmitBtn');
+  const key = document.getElementById('loginPasskey').value.trim();
+  btn.disabled = true;
+  btn.textContent = 'Verifying...';
+
+  try {
+    await verifyAndUnlock(key);
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Unlock Dashboard';
+  }
+});
+
+async function loadDashboardData() {
+  const res = await fetch('/api/posts');
+  posts = await res.json();
+  syncWardFilterOptions();
+  renderDashboard();
+}
+
+function syncWardFilterOptions() {
+  const selectEl = document.getElementById('commentWardSelect');
+  if (!selectEl) return;
+
+  const wardSet = new Set();
+  for (const p of posts) {
+    for (const c of p.comments || []) {
+      const w = (c.ward || 'Resident').trim();
+      if (w) wardSet.add(w);
+    }
+  }
+
+  const sortedWards = Array.from(wardSet).sort((a, b) => a.localeCompare(b));
+  const currentVal = sortedWards.includes(selectedCommentWard) ? selectedCommentWard : 'All';
+  selectedCommentWard = currentVal;
+
+  selectEl.innerHTML =
+    `<option value="All">All Wards</option>` +
+    sortedWards
+      .map(
+        (ward) =>
+          `<option value="${escapeHTML(ward)}" ${ward === currentVal ? 'selected' : ''}>${escapeHTML(ward)}</option>`
+      )
+      .join('');
+}
+
+function handleCommentFilterChange() {
+  const searchEl = document.getElementById('commentSearchInput');
+  const wardEl = document.getElementById('commentWardSelect');
+  commentSearchQuery = searchEl ? searchEl.value.trim().toLowerCase() : '';
+  selectedCommentWard = wardEl ? wardEl.value : 'All';
+  renderDashboard();
+}
+
+function resetCommentFilters() {
+  commentSearchQuery = '';
+  selectedCommentWard = 'All';
+  const searchEl = document.getElementById('commentSearchInput');
+  const wardEl = document.getElementById('commentWardSelect');
+  if (searchEl) searchEl.value = '';
+  if (wardEl) wardEl.value = 'All';
+  renderDashboard();
+}
+
+function renderDashboard() {
+  const allComments = posts.flatMap((p) =>
+    (p.comments || []).map((c) => ({ ...c, post_title: p.title }))
+  );
+
+  const totalLikes = posts.reduce((sum, p) => sum + Number(p.likes || 0), 0);
+
+  document.getElementById('kpiPosts').textContent = posts.length;
+  document.getElementById('kpiLikes').textContent = totalLikes;
+  document.getElementById('kpiComments').textContent = allComments.length;
+  document.getElementById('tabPostCount').textContent = posts.length;
+  document.getElementById('tabCommentCount').textContent = allComments.length;
+
+  const filterBar = document.getElementById('commentFilterBar');
+  if (filterBar) {
+    filterBar.classList.toggle('active', currentTab === 'comments');
+  }
+
+  const listEl = document.getElementById('moderationList');
+
+  if (currentTab === 'posts') {
+    if (posts.length === 0) {
+      listEl.innerHTML = `<p style="padding:1.5rem;color:var(--slate-500);">No dispatches published yet.</p>`;
+      return;
+    }
+
+    listEl.innerHTML = posts
+      .map(
+        (p) => `
+        <div class="item-row">
+          <div>
+            <div class="item-meta">${escapeHTML(p.category)} &bull; ${escapeHTML(p.ward)} &bull; &#9829; ${p.likes || 0} &bull; &#128172; ${(p.comments || []).length}</div>
+            <div class="item-title">${escapeHTML(p.title)}</div>
+            <div class="item-desc">${escapeHTML(p.summary)}</div>
+          </div>
+          <div class="item-actions">
+            <button class="btn btn-edit" onclick="startEditPost(${p.id})">Edit</button>
+            <button class="btn btn-danger" onclick="deletePost(${p.id})">Delete</button>
+          </div>
+        </div>`
+      )
+      .join('');
+  } else {
+    const filteredComments = allComments.filter((c) => {
+      const wardLabel = (c.ward || 'Resident').trim();
+      const matchesWard =
+        selectedCommentWard === 'All' ||
+        wardLabel.toLowerCase() === selectedCommentWard.toLowerCase();
+
+      const matchesQuery =
+        !commentSearchQuery ||
+        (c.author_name && c.author_name.toLowerCase().includes(commentSearchQuery)) ||
+        (c.body && c.body.toLowerCase().includes(commentSearchQuery)) ||
+        (c.post_title && c.post_title.toLowerCase().includes(commentSearchQuery)) ||
+        wardLabel.toLowerCase().includes(commentSearchQuery);
+
+      return matchesWard && matchesQuery;
+    });
+
+    if (allComments.length === 0) {
+      listEl.innerHTML = `<p style="padding:1.5rem;color:var(--slate-500);">No constituent comments to moderate.</p>`;
+      return;
+    }
+
+    if (filteredComments.length === 0) {
+      listEl.innerHTML = `<p style="padding:1.5rem;color:var(--slate-500);">No comments match "${escapeHTML(commentSearchQuery)}" in ${escapeHTML(selectedCommentWard)}.</p>`;
+      return;
+    }
+
+    const summaryBanner = `<div style="padding:0.55rem 1.35rem;font-size:0.78rem;color:var(--slate-600);background:var(--slate-50);border-bottom:1px solid var(--slate-200);">Showing <strong>${filteredComments.length}</strong> of <strong>${allComments.length}</strong> constituent comments</div>`;
+
+    listEl.innerHTML =
+      summaryBanner +
+      filteredComments
+        .map(
+          (c) => `
+          <div class="item-row">
+            <div>
+              <div class="item-meta">${escapeHTML(c.author_name)} (${escapeHTML(c.ward || 'Resident')}) &bull; On: "${escapeHTML(c.post_title)}"</div>
+              <div class="item-desc" style="color:var(--slate-900);margin-top:0.2rem;">${escapeHTML(c.body)}</div>
+            </div>
+            <div class="item-actions">
+              <button class="btn btn-danger" onclick="deleteComment(${c.id})">Remove</button>
+            </div>
+          </div>`
+        )
+        .join('');
+  }
+}
+
+function switchAdminTab(tab) {
+  currentTab = tab;
+  document.getElementById('tabPostsBtn').classList.toggle('active', tab === 'posts');
+  document.getElementById('tabCommentsBtn').classList.toggle('active', tab === 'comments');
+  renderDashboard();
+}
+
+function startEditPost(postId) {
+  const post = posts.find((p) => Number(p.id) === Number(postId));
+  if (!post) return;
+
+  editingPostId = Number(postId);
+  document.getElementById('editorHeading').textContent = `Editing Dispatch #${editingPostId}`;
+  document.getElementById('saveDispatchBtn').textContent = 'Save Changes to Turso';
+  document.getElementById('cancelEditBtn').style.display = 'inline-flex';
+
+  document.getElementById('postTitle').value = post.title || '';
+  document.getElementById('postCategory').value = post.category || 'Manifesto & Policy';
+  document.getElementById('postWard').value = post.ward || 'All Wards';
+  document.getElementById('postImage').value = post.image_url || '';
+  document.getElementById('postSummary').value = post.summary || '';
+  document.getElementById('postContent').value = post.content || '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetEditor() {
+  editingPostId = null;
+  document.getElementById('dispatchForm').reset();
+  document.getElementById('editorHeading').textContent = 'Draft New Dispatch';
+  document.getElementById('saveDispatchBtn').textContent = 'Publish Live Dispatch';
+  document.getElementById('cancelEditBtn').style.display = 'none';
+}
+
+document.getElementById('dispatchForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('saveDispatchBtn');
+  const passkey = getAdminKey();
+  const isEditing = editingPostId !== null;
+
+  btn.disabled = true;
+  btn.textContent = isEditing ? 'Saving...' : 'Publishing...';
+
+  const payload = {
+    adminKey: passkey,
+    title: document.getElementById('postTitle').value.trim(),
+    category: document.getElementById('postCategory').value,
+    ward: document.getElementById('postWard').value.trim() || 'All Wards',
+    image_url: document.getElementById('postImage').value.trim(),
+    summary: document.getElementById('postSummary').value.trim(),
+    content: document.getElementById('postContent').value.trim()
+  };
+
+  try {
+    const res = await fetch(isEditing ? `/api/posts/${editingPostId}` : '/api/posts', {
+      method: isEditing ? 'PUT' : 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-key': passkey
+      },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Operation failed');
+
+    resetEditor();
+    await loadDashboardData();
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = editingPostId !== null ? 'Save Changes to Turso' : 'Publish Live Dispatch';
+  }
+});
+
+async function deletePost(postId) {
+  if (!confirm('Delete this dispatch and all its comments permanently?')) return;
+  const passkey = getAdminKey();
+
+  try {
+    const res = await fetch(`/api/posts/${postId}`, {
+      method: 'DELETE',
+      headers: { 'x-admin-key': passkey }
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Delete failed');
+
+    if (editingPostId === Number(postId)) resetEditor();
+    await loadDashboardData();
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+async function deleteComment(commentId) {
+  if (!confirm('Remove this constituent comment?')) return;
+  const passkey = getAdminKey();
+
+  try {
+    const res = await fetch(`/api/comments/${commentId}`, {
+      method: 'DELETE',
+      headers: { 'x-admin-key': passkey }
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to remove comment');
+
+    await loadDashboardData();
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+// Auto-unlock if session passkey is already stored
+(async function initAdmin() {
+  const saved = getAdminKey();
+  if (saved) {
+    try {
+      await verifyAndUnlock(saved);
+    } catch {
+      // Stay on login gate
+    }
+  }
+})();
