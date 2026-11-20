@@ -244,7 +244,7 @@ function openReader(postId) {
     
   <button class="read-more-btn" onclick="openReader(${post.id})">Read Full &rarr;</button>
 </div>
-    <h4 style="margin-bottom:0.75rem;color:var(--navy-900);">Constituent Townhall Comments</h4>
+<h4 style="margin-bottom:0.75rem;color:var(--obsidian-900);">Enkiguena (Community Dialogue)</h4>
     <div class="comment-list" style="max-height:240px;margin-bottom:1rem;">
       ${
         comments.length
@@ -260,7 +260,7 @@ function openReader(postId) {
               </div>`
               )
               .join('')
-          : '<p style="font-size:0.85rem;color:var(--slate-500);">No responses yet. Share your thoughts below.</p>'
+          : '<p style="font-size:0.8rem;color:var(--slate-500);">No Enkiguena entries yet. Be the first resident to speak.</p>'
       }
     </div>
 
@@ -445,68 +445,6 @@ function resetFilters(e) {
   renderPosts();
 }
 
-// Replace your createPostForm submit listener with this combined Create + Update handler
-const postFormEl = document.getElementById('createPostForm');
-const freshFormEl = postFormEl.cloneNode(true);
-postFormEl.parentNode.replaceChild(freshFormEl, postFormEl);
-
-freshFormEl.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const btn = document.getElementById('publishSubmitBtn');
-  const isEditing = editingPostId !== null;
-
-  btn.disabled = true;
-  btn.textContent = isEditing ? 'Updating Turso...' : 'Publishing to Turso...';
-
-  const adminKeyVal = document.getElementById('adminKey').value.trim();
-  const payload = {
-    adminKey: adminKeyVal,
-    title: document.getElementById('postTitle').value.trim(),
-    category: document.getElementById('postCategory').value,
-    ward: document.getElementById('postWard').value.trim() || 'All Wards',
-    image_url: document.getElementById('postImage').value.trim(),
-    summary: document.getElementById('postSummary').value.trim(),
-    content: document.getElementById('postContent').value.trim()
-  };
-
-  const url = isEditing ? `/api/posts/${editingPostId}` : '/api/posts';
-  const method = isEditing ? 'PUT' : 'POST';
-
-  try {
-    const res = await fetch(url, {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-admin-key': adminKeyVal
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      if (res.status === 401) sessionStorage.removeItem('campaign_admin_key');
-      throw new Error(data.error || 'Request failed');
-    }
-
-    saveAdminKey(adminKeyVal);
-
-    if (isEditing) {
-      posts = posts.map((p) => (Number(p.id) === Number(editingPostId) ? data : p));
-    } else {
-      posts.unshift(data);
-    }
-
-    renderPosts();
-    freshFormEl.reset();
-    editingPostId = null;
-    closeModal('adminModal');
-  } catch (err) {
-    alert(err.message);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = editingPostId !== null ? 'Save Changes to Turso' : 'Publish Live to Turso';
-  }
-});
 document.getElementById('categoryTabs').addEventListener('click', (e) => {
   if (!e.target.classList.contains('tab-btn')) return;
   document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));

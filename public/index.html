@@ -9,31 +9,38 @@
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,700;0,900;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --navy-950: #071326;
-      --navy-900: #0c1f3d;
-      --navy-800: #132d56;
-      --emerald-600: #047857;
-      --emerald-500: #10b981;
-      --emerald-100: #d1fae5;
-      --gold-500: #d97706;
-      --gold-400: #f59e0b;
-      --gold-100: #fef3c7;
-      --slate-900: #0f172a;
-      --slate-700: #334155;
-      --slate-600: #475569;
-      --slate-500: #64748b;
-      --slate-300: #cbd5e1;
-      --slate-200: #e2e8f0;
-      --slate-100: #f1f5f9;
-      --slate-50: #f8fafc;
+      /* Maasai Shúkà & Beadwork Palette */
+      --crimson-900: #631212;
+      --crimson-800: #7f1d1d;
+      --crimson-700: #991b1b;
+      --crimson-600: #b91c1c;
+      --crimson-100: #fee2e2;
+      --ochre-500: #d97706;
+      --ochre-400: #f59e0b;
+      --ochre-100: #fef3c7;
+      --acacia-700: #15803d;
+      --acacia-500: #22c55e;
+      --acacia-100: #dcfce7;
+      --bead-blue: #1d4ed8;
+      --obsidian-950: #12100e;
+      --obsidian-900: #1c1917;
+      --obsidian-800: #292524;
+      --earth-bg: #faf7f2;
+      --slate-900: #1c1917;
+      --slate-700: #44403c;
+      --slate-600: #57534e;
+      --slate-500: #78716c;
+      --slate-300: #d6d3d1;
+      --slate-200: #e7e5e4;
+      --slate-100: #f5f5f4;
       --white: #ffffff;
-      --danger: #dc2626;
+      --danger: #b91c1c;
       --radius-lg: 16px;
       --radius-md: 12px;
       --radius-sm: 8px;
-      --shadow-sm: 0 2px 8px rgba(7, 19, 38, 0.06);
-      --shadow-md: 0 10px 25px rgba(7, 19, 38, 0.08);
-      --shadow-lg: 0 20px 45px rgba(7, 19, 38, 0.16);
+      --shadow-sm: 0 2px 10px rgba(28, 25, 23, 0.06);
+      --shadow-md: 0 12px 28px rgba(28, 25, 23, 0.09);
+      --shadow-lg: 0 22px 48px rgba(18, 16, 14, 0.22);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -41,7 +48,7 @@
 
     body {
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: var(--slate-50);
+      background-color: var(--earth-bg);
       color: var(--slate-900);
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
@@ -49,18 +56,39 @@
 
     h1, h2, h3, .serif { font-family: 'Merriweather', Georgia, serif; }
 
-    /* Top Civic Bar */
+    /* Signature Touch 1: Maasai Beadwork Divider Strip */
+    .beadwork-strip {
+      height: 6px;
+      width: 100%;
+      background: repeating-linear-gradient(
+        90deg,
+        #b91c1c 0px, #b91c1c 20px,
+        #ffffff 20px, #ffffff 24px,
+        #1d4ed8 24px, #1d4ed8 38px,
+        #f59e0b 38px, #f59e0b 52px,
+        #15803d 52px, #15803d 66px,
+        #12100e 66px, #12100e 74px
+      );
+    }
+
+    /* Top Civic Bar with Subtle Shúkà Check */
     .civic-banner {
-      background: var(--navy-950);
+      background-color: var(--obsidian-950);
+      background-image: repeating-linear-gradient(
+        90deg,
+        rgba(185, 28, 28, 0.14) 0px,
+        rgba(185, 28, 28, 0.14) 24px,
+        transparent 24px,
+        transparent 48px
+      );
       color: var(--slate-200);
       font-size: 0.8rem;
       padding: 0.45rem 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 2px solid var(--gold-500);
     }
-    .civic-banner span strong { color: var(--gold-400); }
+    .civic-banner span strong { color: var(--ochre-400); }
 
     /* Navigation Header */
     header {
@@ -68,7 +96,6 @@
       position: sticky;
       top: 0;
       z-index: 40;
-      border-bottom: 1px solid var(--slate-200);
       box-shadow: var(--shadow-sm);
     }
 
@@ -79,37 +106,45 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 1.5rem;
+      gap: 1.25rem;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 0.85rem;
+      gap: 0.9rem;
       text-decoration: none;
-      color: var(--navy-900);
+      color: var(--obsidian-900);
     }
 
+    /* Signature Touch 2: Maasai Warrior Shield Emblem (Long'o) */
     .brand-emblem {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--navy-900), var(--emerald-600));
+      width: 42px;
+      height: 52px;
+      border-radius: 50% / 38%;
+      background:
+        radial-gradient(circle at center, var(--ochre-400) 0 4px, transparent 5px),
+        linear-gradient(90deg, transparent 47%, var(--white) 47%, var(--white) 53%, transparent 53%),
+        linear-gradient(135deg, var(--crimson-600) 50%, var(--obsidian-900) 50%);
       color: var(--white);
-      font-weight: 800;
-      font-size: 1.1rem;
+      font-weight: 900;
+      font-size: 0.85rem;
+      letter-spacing: 0.04em;
       display: grid;
       place-items: center;
-      box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);
+      border: 2px solid var(--ochre-500);
+      box-shadow: 0 4px 14px rgba(185, 28, 28, 0.28);
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+      flex-shrink: 0;
     }
 
-    .brand-text h1 { font-size: 1.12rem; font-weight: 900; line-height: 1.15; color: var(--navy-900); }
-    .brand-text p { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--emerald-600); }
+    .brand-text h1 { font-size: 1.12rem; font-weight: 900; line-height: 1.15; color: var(--obsidian-900); }
+    .brand-text p { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--crimson-600); }
 
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 1.5rem;
+      gap: 1.4rem;
       list-style: none;
     }
 
@@ -121,9 +156,9 @@
       transition: color 0.15s ease;
     }
 
-    .nav-links a:hover { color: var(--emerald-600); }
+    .nav-links a:hover { color: var(--crimson-600); }
 
-    .nav-actions { display: flex; align-items: center; gap: 0.75rem; }
+    .nav-actions { display: flex; align-items: center; gap: 0.65rem; }
 
     .mobile-menu-btn {
       display: none;
@@ -151,16 +186,40 @@
       text-decoration: none;
     }
 
-    .btn-primary { background: var(--emerald-600); color: var(--white); }
-    .btn-primary:hover { background: #065f46; transform: translateY(-1px); }
-    .btn-navy { background: var(--navy-900); color: var(--white); }
-    .btn-navy:hover { background: var(--navy-800); }
+    .btn-primary { background: var(--crimson-600); color: var(--white); }
+    .btn-primary:hover { background: var(--crimson-700); transform: translateY(-1px); }
+    .btn-navy { background: var(--obsidian-900); color: var(--white); }
+    .btn-navy:hover { background: var(--obsidian-950); }
 
-    /* Hero Section */
+    /* Signature Touch 3: Woven Red & Black Shúkà Plaid Hero */
     .hero {
-      background: linear-gradient(135deg, var(--navy-950) 0%, var(--navy-800) 65%, #064e3b 100%);
+      background-color: var(--crimson-800);
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          rgba(18, 16, 14, 0.26) 0px,
+          rgba(18, 16, 14, 0.26) 3px,
+          transparent 3px,
+          transparent 14px,
+          rgba(245, 158, 11, 0.12) 14px,
+          rgba(245, 158, 11, 0.12) 15px,
+          transparent 15px,
+          transparent 34px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          rgba(18, 16, 14, 0.26) 0px,
+          rgba(18, 16, 14, 0.26) 3px,
+          transparent 3px,
+          transparent 14px,
+          rgba(245, 158, 11, 0.12) 14px,
+          rgba(245, 158, 11, 0.12) 15px,
+          transparent 15px,
+          transparent 34px
+        ),
+        linear-gradient(135deg, var(--crimson-900) 0%, var(--crimson-700) 52%, var(--obsidian-900) 100%);
       color: var(--white);
-      padding: 3.5rem 1.5rem 4rem;
+      padding: 3.5rem 1.5rem 4.25rem;
     }
 
     .hero-inner {
@@ -176,44 +235,47 @@
       display: inline-flex;
       align-items: center;
       gap: 0.45rem;
-      background: rgba(245, 158, 11, 0.18);
-      border: 1px solid rgba(245, 158, 11, 0.45);
-      color: var(--gold-400);
-      padding: 0.35rem 0.85rem;
+      background: rgba(18, 16, 14, 0.45);
+      border: 1px solid rgba(245, 158, 11, 0.55);
+      color: var(--ochre-400);
+      padding: 0.35rem 0.9rem;
       border-radius: 999px;
       font-size: 0.78rem;
-      font-weight: 700;
+      font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.06em;
       margin-bottom: 1.1rem;
     }
 
     .hero h2 { font-size: clamp(1.85rem, 3.2vw, 2.75rem); line-height: 1.2; margin-bottom: 1rem; font-weight: 900; }
-    .hero p { color: #cbd5e1; font-size: 1.05rem; max-width: 620px; margin-bottom: 1.75rem; }
+    .hero p { color: #f5f5f4; font-size: 1.04rem; max-width: 620px; margin-bottom: 1.5rem; }
 
     .pillars-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.85rem; }
     .pillar-card {
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(18, 16, 14, 0.42);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-top: 3px solid var(--ochre-400);
       border-radius: var(--radius-md);
       padding: 0.9rem;
+      backdrop-filter: blur(4px);
     }
-    .pillar-card strong { display: block; color: var(--gold-400); font-size: 0.82rem; text-transform: uppercase; margin-bottom: 0.25rem; }
-    .pillar-card span { font-size: 0.84rem; color: #e2e8f0; line-height: 1.35; display: block; }
+    .pillar-card strong { display: block; color: var(--ochre-400); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.25rem; }
+    .pillar-card span { font-size: 0.84rem; color: #f5f5f4; line-height: 1.35; display: block; }
 
     .hero-stats-card {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(18, 16, 14, 0.58);
+      border: 1px solid rgba(245, 158, 11, 0.32);
       border-radius: var(--radius-lg);
       padding: 1.75rem;
+      backdrop-filter: blur(6px);
     }
-    .hero-stats-card h3 { font-size: 1.1rem; margin-bottom: 0.35rem; color: var(--white); }
-    .hero-stats-card > p { font-size: 0.85rem; color: #94a3b8; margin-bottom: 1.25rem; }
-    .stat-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem; }
-    .stat-row strong { color: var(--emerald-500); font-size: 1.05rem; }
+    .hero-stats-card h3 { font-size: 1.12rem; margin-bottom: 0.3rem; color: var(--white); }
+    .hero-stats-card > p { font-size: 0.84rem; color: #d6d3d1; margin-bottom: 1.2rem; }
+    .stat-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-top: 1px solid rgba(255, 255, 255, 0.12); font-size: 0.9rem; }
+    .stat-row strong { color: var(--ochre-400); font-size: 1.08rem; }
 
     /* Filter & Search Controls */
-    .controls-bar { max-width: 1200px; margin: -1.6rem auto 2rem; padding: 0 1.5rem; position: relative; z-index: 10; }
+    .controls-bar { max-width: 1200px; margin: -1.65rem auto 2rem; padding: 0 1.5rem; position: relative; z-index: 10; }
     .controls-inner {
       background: var(--white);
       border-radius: var(--radius-lg);
@@ -237,8 +299,8 @@
       font-weight: 700;
       cursor: pointer;
     }
-    .tab-btn:hover { background: var(--slate-200); }
-    .tab-btn.active { background: var(--navy-900); color: var(--white); }
+    .tab-btn:hover { background: var(--ochre-100); color: var(--crimson-800); }
+    .tab-btn.active { background: var(--crimson-700); color: var(--white); }
 
     .search-box { min-width: 250px; flex: 1; max-width: 340px; }
     .search-box input {
@@ -249,7 +311,7 @@
       font-size: 0.875rem;
       font-family: inherit;
     }
-    .search-box input:focus { outline: none; border-color: var(--emerald-600); }
+    .search-box input:focus { outline: none; border-color: var(--crimson-600); }
 
     /* Main Feed */
     main { max-width: 1200px; margin: 0 auto 4rem; padding: 0 1.5rem; }
@@ -267,13 +329,29 @@
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .post-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
-    .post-cover { width: 100%; height: 205px; object-fit: cover; background: var(--navy-900); cursor: pointer; }
+    .post-card::before {
+      content: "";
+      display: block;
+      height: 5px;
+      width: 100%;
+      background: repeating-linear-gradient(
+        90deg,
+        #b91c1c 0px, #b91c1c 16px,
+        #ffffff 16px, #ffffff 19px,
+        #1d4ed8 19px, #1d4ed8 30px,
+        #f59e0b 30px, #f59e0b 41px,
+        #15803d 41px, #15803d 52px,
+        #12100e 52px, #12100e 58px
+      );
+    }
+
+    .post-cover { width: 100%; height: 205px; object-fit: cover; background: var(--obsidian-900); cursor: pointer; }
     .post-body { padding: 1.35rem; display: flex; flex-direction: column; flex: 1; }
     .post-meta { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.7rem; font-size: 0.75rem; font-weight: 700; }
-    .badge-category { background: var(--emerald-100); color: var(--emerald-600); padding: 0.25rem 0.65rem; border-radius: 999px; text-transform: uppercase; }
-    .badge-ward { color: var(--slate-500); }
-    .post-title { font-size: 1.2rem; line-height: 1.35; color: var(--navy-900); margin-bottom: 0.65rem; cursor: pointer; }
-    .post-title:hover { color: var(--emerald-600); }
+    .badge-category { background: var(--ochre-100); color: var(--crimson-800); padding: 0.25rem 0.65rem; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.03em; }
+    .badge-ward { color: var(--acacia-700); font-weight: 800; }
+    .post-title { font-size: 1.2rem; line-height: 1.35; color: var(--obsidian-900); margin-bottom: 0.65rem; cursor: pointer; }
+    .post-title:hover { color: var(--crimson-600); }
     .post-summary { color: var(--slate-600); font-size: 0.92rem; margin-bottom: 1.2rem; flex: 1; }
 
     .post-actions { display: flex; align-items: center; justify-content: space-between; padding-top: 0.9rem; border-top: 1px solid var(--slate-100); gap: 0.5rem; }
@@ -292,8 +370,8 @@
       font-weight: 700;
       cursor: pointer;
     }
-    .like-btn:hover { background: var(--gold-100); border-color: var(--gold-400); color: var(--navy-900); }
-    .like-btn.liked { background: #fee2e2; border-color: #fca5a5; color: var(--danger); }
+    .like-btn:hover { background: var(--ochre-100); border-color: var(--ochre-400); color: var(--obsidian-900); }
+    .like-btn.liked { background: var(--crimson-100); border-color: #fca5a5; color: var(--crimson-700); }
 
     .comment-toggle-btn {
       background: transparent;
@@ -306,15 +384,15 @@
       cursor: pointer;
     }
     .comment-toggle-btn:hover { background: var(--slate-100); }
-    .read-more-btn { background: none; border: none; color: var(--emerald-600); font-weight: 800; font-size: 0.83rem; cursor: pointer; }
+    .read-more-btn { background: none; border: none; color: var(--crimson-600); font-weight: 800; font-size: 0.83rem; cursor: pointer; }
 
-    /* Inline Comment Drawer */
-    .inline-comments { background: var(--slate-50); border-top: 1px solid var(--slate-200); padding: 1rem 1.35rem; display: none; }
+    /* Inline Enkiguena (Community Dialogue) Drawer */
+    .inline-comments { background: var(--earth-bg); border-top: 1px solid var(--slate-200); padding: 1rem 1.35rem; display: none; }
     .inline-comments.open { display: block; }
     .comment-list { max-height: 190px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.65rem; margin-bottom: 0.9rem; }
-    .comment-item { background: var(--white); padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--slate-200); font-size: 0.83rem; }
-    .comment-header { display: flex; justify-content: space-between; margin-bottom: 0.2rem; font-weight: 700; color: var(--navy-900); }
-    .comment-header span { font-weight: 600; color: var(--emerald-600); font-size: 0.75rem; }
+    .comment-item { background: var(--white); padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--slate-200); border-left: 3px solid var(--acacia-700); font-size: 0.83rem; }
+    .comment-header { display: flex; justify-content: space-between; margin-bottom: 0.2rem; font-weight: 700; color: var(--obsidian-900); }
+    .comment-header span { font-weight: 700; color: var(--acacia-700); font-size: 0.75rem; }
     .inline-comment-form { display: flex; flex-direction: column; gap: 0.5rem; }
     .inline-comment-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
 
@@ -327,13 +405,13 @@
       font-family: inherit;
       background: var(--white);
     }
-    .form-input:focus { outline: none; border-color: var(--emerald-600); }
+    .form-input:focus { outline: none; border-color: var(--crimson-600); }
 
     /* Modals */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(7, 19, 38, 0.72);
+      background: rgba(18, 16, 14, 0.75);
       backdrop-filter: blur(4px);
       display: none;
       align-items: center;
@@ -344,20 +422,19 @@
     .modal-backdrop.open { display: flex; }
     .modal-card { background: var(--white); width: 100%; max-width: 720px; max-height: 90vh; overflow-y: auto; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); }
     .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--slate-200); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--white); z-index: 5; }
-    .modal-header h3 { font-size: 1.15rem; color: var(--navy-900); }
+    .modal-header h3 { font-size: 1.15rem; color: var(--obsidian-900); }
     .close-btn { background: var(--slate-100); border: none; width: 34px; height: 34px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; color: var(--slate-700); }
     .modal-body { padding: 1.5rem; }
     .reader-cover { width: 100%; max-height: 310px; object-fit: cover; border-radius: var(--radius-md); margin-bottom: 1.25rem; }
     .reader-content { font-size: 1.02rem; color: var(--slate-700); white-space: pre-line; margin-bottom: 1.75rem; }
     .form-group { margin-bottom: 1rem; }
-    .form-group label { display: block; font-size: 0.82rem; font-weight: 700; color: var(--navy-900); margin-bottom: 0.35rem; }
+    .form-group label { display: block; font-size: 0.82rem; font-weight: 700; color: var(--obsidian-900); margin-bottom: 0.35rem; }
     textarea.form-input { min-height: 110px; resize: vertical; }
 
     /* Multi-Column Civic Footer */
     footer {
-      background: var(--navy-950);
+      background: var(--obsidian-950);
       color: var(--slate-300);
-      border-top: 4px solid var(--emerald-600);
       padding: 3.5rem 1.5rem 1.75rem;
     }
 
@@ -370,7 +447,7 @@
     }
 
     .footer-col h4 {
-      color: var(--white);
+      color: var(--ochre-400);
       font-size: 0.95rem;
       margin-bottom: 1rem;
       text-transform: uppercase;
@@ -379,7 +456,7 @@
 
     .footer-col p {
       font-size: 0.88rem;
-      color: #94a3b8;
+      color: #a8a29e;
       margin-bottom: 0.85rem;
     }
 
@@ -391,15 +468,13 @@
     }
 
     .footer-links a {
-      color: #cbd5e1;
+      color: #e7e5e4;
       text-decoration: none;
       font-size: 0.88rem;
       transition: color 0.15s;
     }
 
-    .footer-links a:hover {
-      color: var(--gold-400);
-    }
+    .footer-links a:hover { color: var(--ochre-400); }
 
     .footer-bottom {
       max-width: 1200px;
@@ -412,9 +487,193 @@
       align-items: center;
       gap: 1rem;
       font-size: 0.82rem;
-      color: #94a3b8;
+      color: #a8a29e;
+    }
+    /* Ward Development & NG-CDF Transparency Scorecard */
+    .scorecard-section {
+      max-width: 1200px;
+      margin: 0 auto 3.25rem;
+      padding: 0 1.5rem;
     }
 
+    .scorecard-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--slate-200);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+
+    .scorecard-header {
+      padding: 1.5rem 1.75rem;
+      background-color: var(--obsidian-950);
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          rgba(185, 28, 28, 0.16) 0px,
+          rgba(185, 28, 28, 0.16) 2px,
+          transparent 2px,
+          transparent 22px
+        ),
+        linear-gradient(135deg, var(--obsidian-950) 0%, var(--crimson-900) 100%);
+      color: var(--white);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .scorecard-kicker {
+      font-size: 0.74rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ochre-400);
+      margin-bottom: 0.35rem;
+    }
+
+    .scorecard-header h3 {
+      font-size: 1.35rem;
+      color: var(--white);
+      margin-bottom: 0.3rem;
+    }
+
+    .scorecard-header p {
+      font-size: 0.88rem;
+      color: #e7e5e4;
+      max-width: 620px;
+    }
+
+    .ward-filter-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .ward-pill-btn {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--white);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      padding: 0.38rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .ward-pill-btn:hover,
+    .ward-pill-btn.active {
+      background: var(--ochre-400);
+      color: var(--obsidian-950);
+      border-color: var(--ochre-400);
+    }
+
+    .scorecard-body {
+      padding: 1.5rem 1.75rem 1.75rem;
+    }
+
+    .wards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.15rem;
+    }
+
+    .ward-box {
+      background: var(--earth-bg);
+      border: 1px solid var(--slate-200);
+      border-top: 4px solid var(--crimson-600);
+      border-radius: var(--radius-md);
+      padding: 1.1rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.85rem;
+    }
+
+    .ward-box-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .ward-name {
+      font-family: 'Merriweather', Georgia, serif;
+      font-size: 1rem;
+      font-weight: 900;
+      color: var(--obsidian-900);
+    }
+
+    .ward-alloc {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--crimson-700);
+      background: var(--ochre-100);
+      padding: 0.22rem 0.6rem;
+      border-radius: 999px;
+    }
+
+    .ward-project {
+      font-size: 0.86rem;
+      color: var(--slate-700);
+      font-weight: 600;
+    }
+
+    .progress-wrap {
+      width: 100%;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: var(--slate-600);
+      margin-bottom: 0.35rem;
+    }
+
+    .progress-track {
+      height: 9px;
+      width: 100%;
+      background: var(--slate-200);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--crimson-600), var(--ochre-500) 65%, var(--acacia-700));
+    }
+
+    .ward-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--slate-200);
+    }
+
+    .ward-status {
+      color: var(--acacia-700);
+      font-weight: 800;
+    }
+
+    .ward-link-btn {
+      background: none;
+      border: none;
+      color: var(--crimson-700);
+      font-weight: 800;
+      font-size: 0.78rem;
+      cursor: pointer;
+    }
+
+    .ward-link-btn:hover {
+      text-decoration: underline;
+    }
     @media (max-width: 900px) {
       .hero-inner { grid-template-columns: 1fr; }
       .pillars-grid { grid-template-columns: 1fr; }
@@ -444,14 +703,15 @@
 <body>
 
   <div class="civic-banner">
-    <span><strong>VISION 2027</strong> &bull; People-Driven Leadership &amp; Transparent NG-CDF</span>
+    <span><strong>VISION 2027</strong> &bull; Enkiguena, Unity &amp; Transparent NG-CDF</span>
     <span>Constituency Civic Desk</span>
   </div>
+  <div class="beadwork-strip"></div>
 
   <header>
     <div class="nav-container">
       <a href="#top" class="brand" onclick="resetFilters(event)">
-        <div class="brand-emblem">DK</div>
+        <div class="brand-emblem" title="Long'o Shield Emblem">DK</div>
         <div class="brand-text">
           <h1>Hon. David Kamau</h1>
           <p>Aspiring Member of Parliament &bull; 2027</p>
@@ -461,33 +721,36 @@
       <ul class="nav-links" id="navLinks">
         <li><a href="#pillars">Manifesto Pillars</a></li>
         <li><a href="#feed" onclick="filterByNav('Manifesto & Policy')">Policy Blueprints</a></li>
-        <li><a href="#feed" onclick="filterByNav('Constituency Tours')">Ward Tours</a></li>
-        <li><a href="#feed" onclick="filterByNav('Youth & Economy')">Youth &amp; Economy</a></li>
-        <li><a href="#contact-footer">Constituency Desk</a></li>
+        <li><a href="#feed" onclick="filterByNav('Constituency Tours')">Ward Barazas</a></li>
+        <li><a href="#feed" onclick="filterByNav('Youth & Economy')">Youth &amp; Biashara</a></li>
+        <li><a href="#contact-footer">Secretariat Desk</a></li>
       </ul>
 
       <div class="nav-actions">
-        <button type="button" class="btn btn-primary" onclick="openVolunteerModal()">Join as Volunteer</button>
+        <button type="button" class="btn btn-primary" onclick="openVolunteerModal()">Join Vanguard</button>
         <a href="/admin" class="btn btn-navy">Secretariat Portal</a>
         <button class="mobile-menu-btn" onclick="toggleMobileNav()" aria-label="Toggle Menu">&#9776;</button>
       </div>
     </div>
+    <div class="beadwork-strip"></div>
   </header>
 
   <section class="hero" id="top">
     <div class="hero-inner">
       <div>
-        <div class="hero-badge">Official Manifesto &amp; Townhall Blog</div>
+        <div class="hero-badge">Official Manifesto &amp; Enkiguena Portal</div>
         <h2>Accountable Representation. Digital Jobs. Grassroots Action.</h2>
-        <p>Read our ward-by-ward development blueprint, endorse policy proposals, and share your constituency priorities directly with the campaign team.</p>
+        <p>Read our ward-by-ward development blueprint, endorse policy proposals, and share your community priorities directly with the campaign secretariat.</p>
+
         <div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.75rem;">
-          <button type="button" class="btn btn-primary" style="padding:0.75rem 1.35rem;font-size:0.92rem;" onclick="openVolunteerModal()">
-            Become a Ward Mobilizer
+          <button type="button" class="btn btn-primary" style="padding:0.75rem 1.35rem;font-size:0.92rem;border:1px solid var(--ochre-400);" onclick="openVolunteerModal()">
+            Join the Moran &amp; Community Vanguard
           </button>
-          <a href="#feed" class="btn" style="background:rgba(255,255,255,0.12);color:var(--white);border:1px solid rgba(255,255,255,0.22);padding:0.75rem 1.35rem;font-size:0.92rem;">
+          <a href="#feed" class="btn" style="background:rgba(18,16,14,0.45);color:var(--white);border:1px solid rgba(255,255,255,0.28);padding:0.75rem 1.35rem;font-size:0.92rem;">
             Read Manifesto Dispatches
           </a>
         </div>
+
         <div class="pillars-grid" id="pillars">
           <div class="pillar-card">
             <strong>01. Youth &amp; Tech</strong>
@@ -495,18 +758,18 @@
           </div>
           <div class="pillar-card">
             <strong>02. Open NG-CDF</strong>
-            <span>Public real-time dashboard for every bursary &amp; road shilling.</span>
+            <span>Public real-time dashboard for every bursary &amp; water borehole shilling.</span>
           </div>
           <div class="pillar-card">
-            <strong>03. Biashara Fund</strong>
-            <span>Zero-interest table-banking boosts for local market traders.</span>
+            <strong>03. Biashara &amp; Livestock</strong>
+            <span>Zero-interest table-banking boosts &amp; pastoral market value chains.</span>
           </div>
         </div>
       </div>
 
       <div class="hero-stats-card">
-        <h3>Live Constituency Pulse</h3>
-        <p>Synced in real time with Turso database</p>
+        <h3>Manyatta &amp; Ward Pulse</h3>
+        <p>Live grassroots engagement synced with Turso</p>
         <div class="stat-row">
           <span>Published Dispatches</span>
           <strong id="statPosts">0</strong>
@@ -516,7 +779,7 @@
           <strong id="statLikes">0</strong>
         </div>
         <div class="stat-row">
-          <span>Constituent Memoranda</span>
+          <span>Enkiguena Submissions</span>
           <strong id="statComments">0</strong>
         </div>
       </div>
@@ -528,7 +791,7 @@
       <div class="category-tabs" id="categoryTabs">
         <button class="tab-btn active" data-category="All">All Updates</button>
         <button class="tab-btn" data-category="Manifesto & Policy">Manifesto &amp; Policy</button>
-        <button class="tab-btn" data-category="Constituency Tours">Constituency Tours</button>
+        <button class="tab-btn" data-category="Constituency Tours">Ward Barazas</button>
         <button class="tab-btn" data-category="Youth & Economy">Youth &amp; Economy</button>
         <button class="tab-btn" data-category="Press Releases">Press Releases</button>
       </div>
@@ -542,13 +805,37 @@
     <div id="feedStatus" class="feed-status">Loading constituency dispatches...</div>
     <div id="postsGrid" class="posts-grid"></div>
   </main>
-
+  <!-- Ward Development & NG-CDF Transparency Scorecard -->
+  <section class="scorecard-section" id="scorecard">
+    <div class="scorecard-card">
+      <div class="scorecard-header">
+        <div>
+          <div class="scorecard-kicker">Open NG-CDF &amp; Manyatta Accountability</div>
+          <h3>Ward Development &amp; Bursary Transparency Scorecard</h3>
+          <p>Tracking ward-level priority commitments, public fund allocations, and implementation milestones across all 5 wards. Click any ward to filter dispatches below.</p>
+        </div>
+        <div class="ward-filter-pills" id="wardScorecardPills">
+          <button type="button" class="ward-pill-btn active" data-ward="All" onclick="selectScorecardWard('All')">All 5 Wards</button>
+          <button type="button" class="ward-pill-btn" data-ward="Central" onclick="selectScorecardWard('Central')">Central</button>
+          <button type="button" class="ward-pill-btn" data-ward="North" onclick="selectScorecardWard('North')">North</button>
+          <button type="button" class="ward-pill-btn" data-ward="South" onclick="selectScorecardWard('South')">South</button>
+          <button type="button" class="ward-pill-btn" data-ward="East" onclick="selectScorecardWard('East')">East</button>
+          <button type="button" class="ward-pill-btn" data-ward="West" onclick="selectScorecardWard('West')">West</button>
+        </div>
+      </div>
+      <div class="beadwork-strip"></div>
+      <div class="scorecard-body">
+        <div class="wards-grid" id="wardsScorecardGrid"></div>
+      </div>
+    </div>
+  </section>
+  <div class="beadwork-strip"></div>
   <footer id="contact-footer">
     <div class="footer-grid">
       <div class="footer-col">
         <h4>Hon. David Kamau 2027</h4>
-        <p>A citizen-first legislative agenda focused on transparent NG-CDF management, youth digital employment, and market infrastructure across all 5 wards.</p>
-        <p style="color: var(--gold-400); font-weight: 700;">"Kazi Wazi, Maendeleo Mashinani."</p>
+        <p>A citizen-first legislative agenda focused on transparent NG-CDF management, youth digital employment, water security, and livestock &amp; market infrastructure across all 5 wards.</p>
+        <p style="color: var(--ochre-400); font-weight: 800;">"Enkiguena Enaisho, Maendeleo Mashinani."</p>
       </div>
 
       <div class="footer-col">
@@ -577,7 +864,10 @@
         <h4>Campaign Secretariat</h4>
         <p>Constituency HQ, Main Market Road<br />Open Mon – Sat, 8:00 AM – 6:00 PM</p>
         <p>Email: desk@davidkamau2027.co.ke<br />Toll-Free Civic Line: 0800 720 2027</p>
-        <a href="/admin" class="btn btn-navy">Secretariat Portal</a>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
+          <button type="button" class="btn btn-primary" onclick="openVolunteerModal()">Join Vanguard</button>
+          <a href="/admin" class="btn" style="background:rgba(255,255,255,0.1);color:var(--white);border:1px solid rgba(255,255,255,0.2);">Secretariat Login</a>
+        </div>
       </div>
     </div>
 
@@ -598,73 +888,24 @@
     </div>
   </div>
 
-  <!-- Campaign Admin Publisher Modal -->
-  <div class="modal-backdrop" id="adminModal">
-    <div class="modal-card" style="max-width: 560px;">
-      <div class="modal-header">
-        <h3>Publish Campaign Dispatch</h3>
-        <button class="close-btn" onclick="closeModal('adminModal')">&times;</button>
-      </div>
-      <div class="modal-body">
-        <form id="createPostForm">
-          <div class="form-group">
-            <label for="adminKey">Campaign Admin Passkey *</label>
-            <input type="password" id="adminKey" class="form-input" placeholder="Enter ADMIN_SECRET from .env" required />
-          </div>
-          <div class="form-group">
-            <label for="postTitle">Dispatch Headline *</label>
-            <input type="text" id="postTitle" class="form-input" placeholder="e.g., Water Borehole Commissioning in South Ward" required />
-          </div>
-          <div class="inline-comment-row">
-            <div class="form-group">
-              <label for="postCategory">Category</label>
-              <select id="postCategory" class="form-input">
-                <option value="Manifesto & Policy">Manifesto &amp; Policy</option>
-                <option value="Constituency Tours">Constituency Tours</option>
-                <option value="Youth & Economy">Youth &amp; Economy</option>
-                <option value="Press Releases">Press Releases</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="postWard">Target Ward</label>
-              <input type="text" id="postWard" class="form-input" placeholder="e.g., Central Ward" value="All Wards" />
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="postImage">Cover Image URL (Optional)</label>
-            <input type="url" id="postImage" class="form-input" placeholder="https://images.unsplash.com/..." />
-          </div>
-          <div class="form-group">
-            <label for="postSummary">Short Summary *</label>
-            <input type="text" id="postSummary" class="form-input" placeholder="One-sentence takeaway for the feed card" required />
-          </div>
-          <div class="form-group">
-            <label for="postContent">Full Policy / Update Text *</label>
-            <textarea id="postContent" class="form-input" placeholder="Write the full announcement or policy details..." required></textarea>
-          </div>
-          <button type="submit" id="publishSubmitBtn" class="btn btn-primary" style="width: 100%;">Publish Live to Turso</button>
-        </form>
-      </div>
-    </div>
-  </div>
-  <!-- Volunteer Signup Modal -->
+  <!-- Volunteer Vanguard Signup Modal -->
   <div class="modal-backdrop" id="volunteerModal">
     <div class="modal-card" style="max-width: 520px;">
       <div class="modal-header">
-        <h3>Join the Vision 2027 Grassroots Team</h3>
+        <h3>Join the Moran &amp; Community Vanguard</h3>
         <button type="button" class="close-btn" onclick="closeModal('volunteerModal')">&times;</button>
       </div>
       <div class="modal-body">
         <p style="font-size:0.88rem;color:var(--slate-600);margin-bottom:1.1rem;">
-          Register as a ward mobilizer, polling agent, or youth coordinator. Our secretariat team will reach out to onboard you.
+          Register as a ward mobilizer, polling station agent, or youth coordinator. Our secretariat team will reach out to onboard you.
         </p>
 
-        <div id="volunteerSuccessBox" style="display:none;background:var(--emerald-100);color:var(--emerald-600);padding:0.9rem 1rem;border-radius:var(--radius-sm);font-size:0.88rem;font-weight:700;margin-bottom:1rem;"></div>
+        <div id="volunteerSuccessBox" style="display:none;background:var(--acacia-100);color:var(--acacia-700);padding:0.9rem 1rem;border-radius:var(--radius-sm);font-size:0.88rem;font-weight:700;margin-bottom:1rem;border-left:4px solid var(--acacia-700);"></div>
 
         <form id="volunteerSignupForm">
           <div class="form-group">
             <label for="volFullName">Full Name *</label>
-            <input type="text" id="volFullName" class="form-input" placeholder="e.g., Peter Kamau Mwangi" required />
+            <input type="text" id="volFullName" class="form-input" placeholder="e.g., Ole Sankale / Peter Kamau" required />
           </div>
 
           <div class="inline-comment-row">
@@ -685,27 +926,137 @@
           </div>
 
           <div class="form-group">
-            <label for="volRole">Preferred Volunteer Role</label>
+            <label for="volRole">Preferred Vanguard Role</label>
             <select id="volRole" class="form-input">
               <option value="Ward Mobilizer">Ward Mobilizer</option>
-              <option value="Youth & Campus Coordinator">Youth &amp; Campus Coordinator</option>
+              <option value="Moran & Youth Vanguard">Moran &amp; Youth Vanguard</option>
+              <option value="Women & Manyatta Outreach">Women &amp; Manyatta Outreach</option>
               <option value="Polling Station Agent">Polling Station Agent</option>
-              <option value="Digital & Social Media Team">Digital &amp; Social Media Team</option>
-              <option value="Women & Trader Outreach">Women &amp; Trader Outreach</option>
+              <option value="Digital & Media Team">Digital &amp; Media Team</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label for="volNotes">Skills, Polling Station, or Availability (Optional)</label>
-            <textarea id="volNotes" class="form-input" style="min-height:80px;" placeholder="Share your polling center or how you would like to support..."></textarea>
+            <label for="volNotes">Polling Station, Skills, or Availability (Optional)</label>
+            <textarea id="volNotes" class="form-input" style="min-height:80px;" placeholder="Share your polling center or how you would like to mobilize..."></textarea>
           </div>
 
-          <button type="submit" id="volSubmitBtn" class="btn btn-primary" style="width:100%;">Submit Volunteer Registration</button>
+          <button type="submit" id="volSubmitBtn" class="btn btn-primary" style="width:100%;">Submit Vanguard Registration</button>
         </form>
       </div>
     </div>
   </div>
-  <!-- External Frontend Logic -->
+
   <script src="/app.js"></script>
+  <script>
+    (function initWardScorecard() {
+      const wardScorecards = [
+        {
+          id: 'Central',
+          name: 'Central Ward',
+          allocation: 'KES 18.5M Target',
+          project: 'Youth Digital Hub, TVET Bursary Portal & Town Market Drainage',
+          progress: 78,
+          milestone: 'Hub Site & Bursary Audit Ready'
+        },
+        {
+          id: 'North',
+          name: 'North Ward',
+          allocation: 'KES 16.0M Target',
+          project: 'Solar Borehole reticulation & Livestock Sale-Yard Water Troughs',
+          progress: 64,
+          milestone: 'Hydro-Survey & Piping Plan'
+        },
+        {
+          id: 'South',
+          name: 'South Ward',
+          allocation: 'KES 17.2M Target',
+          project: 'Market Sheds, Solar Cold Storage & Biashara Table-Banking Boost',
+          progress: 82,
+          milestone: 'Trader Designs & Cold Unit Spec'
+        },
+        {
+          id: 'East',
+          name: 'East Ward',
+          allocation: 'KES 15.4M Target',
+          project: 'Secondary School Lab Upgrades & All-Weather Feeder Culverts',
+          progress: 58,
+          milestone: 'School BoM & Road Needs Mapped'
+        },
+        {
+          id: 'West',
+          name: 'West Ward',
+          allocation: 'KES 14.8M Target',
+          project: 'Maternal Clinic Solar Backup, Water Pans & Youth Agri-Grants',
+          progress: 71,
+          milestone: 'Manyatta Water Pan Priority List'
+        }
+      ];
+
+      function renderScorecard(activeWard = 'All') {
+        const grid = document.getElementById('wardsScorecardGrid');
+        if (!grid) return;
+
+        const visibleWards =
+          activeWard === 'All'
+            ? wardScorecards
+            : wardScorecards.filter((w) => w.id === activeWard);
+
+        grid.innerHTML = visibleWards
+          .map(
+            (w) => `
+            <article class="ward-box">
+              <div>
+                <div class="ward-box-top">
+                  <span class="ward-name">${w.name}</span>
+                  <span class="ward-alloc">${w.allocation}</span>
+                </div>
+                <p class="ward-project" style="margin-top:0.55rem;">${w.project}</p>
+              </div>
+
+              <div class="progress-wrap">
+                <div class="progress-meta">
+                  <span>Blueprint &amp; Readiness</span>
+                  <span>${w.progress}%</span>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill" style="width:${w.progress}%;"></div>
+                </div>
+              </div>
+
+              <div class="ward-footer">
+                <span class="ward-status">${w.milestone}</span>
+                <button type="button" class="ward-link-btn" onclick="jumpToWardFeed('${w.id}')">
+                  View Dispatches &rarr;
+                </button>
+              </div>
+            </article>
+          `
+          )
+          .join('');
+      }
+
+      window.selectScorecardWard = function (wardKey) {
+        document.querySelectorAll('#wardScorecardPills .ward-pill-btn').forEach((btn) => {
+          btn.classList.toggle('active', btn.dataset.ward === wardKey);
+        });
+        renderScorecard(wardKey);
+      };
+
+      window.jumpToWardFeed = function (wardKey) {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+          searchInput.value = wardKey;
+          searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        const feedEl = document.getElementById('feed');
+        if (feedEl) {
+          feedEl.scrollIntoView({ behavior: 'smooth' });
+        }
+      };
+
+      renderScorecard('All');
+    })();
+  </script>
 </body>
 </html>
