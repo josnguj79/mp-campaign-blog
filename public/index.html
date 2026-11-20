@@ -467,6 +467,7 @@
       </ul>
 
       <div class="nav-actions">
+        <button type="button" class="btn btn-primary" onclick="openVolunteerModal()">Join as Volunteer</button>
         <a href="/admin" class="btn btn-navy">Secretariat Portal</a>
         <button class="mobile-menu-btn" onclick="toggleMobileNav()" aria-label="Toggle Menu">&#9776;</button>
       </div>
@@ -479,6 +480,14 @@
         <div class="hero-badge">Official Manifesto &amp; Townhall Blog</div>
         <h2>Accountable Representation. Digital Jobs. Grassroots Action.</h2>
         <p>Read our ward-by-ward development blueprint, endorse policy proposals, and share your constituency priorities directly with the campaign team.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.75rem;">
+          <button type="button" class="btn btn-primary" style="padding:0.75rem 1.35rem;font-size:0.92rem;" onclick="openVolunteerModal()">
+            Become a Ward Mobilizer
+          </button>
+          <a href="#feed" class="btn" style="background:rgba(255,255,255,0.12);color:var(--white);border:1px solid rgba(255,255,255,0.22);padding:0.75rem 1.35rem;font-size:0.92rem;">
+            Read Manifesto Dispatches
+          </a>
+        </div>
         <div class="pillars-grid" id="pillars">
           <div class="pillar-card">
             <strong>01. Youth &amp; Tech</strong>
@@ -638,7 +647,64 @@
       </div>
     </div>
   </div>
+  <!-- Volunteer Signup Modal -->
+  <div class="modal-backdrop" id="volunteerModal">
+    <div class="modal-card" style="max-width: 520px;">
+      <div class="modal-header">
+        <h3>Join the Vision 2027 Grassroots Team</h3>
+        <button type="button" class="close-btn" onclick="closeModal('volunteerModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:0.88rem;color:var(--slate-600);margin-bottom:1.1rem;">
+          Register as a ward mobilizer, polling agent, or youth coordinator. Our secretariat team will reach out to onboard you.
+        </p>
 
+        <div id="volunteerSuccessBox" style="display:none;background:var(--emerald-100);color:var(--emerald-600);padding:0.9rem 1rem;border-radius:var(--radius-sm);font-size:0.88rem;font-weight:700;margin-bottom:1rem;"></div>
+
+        <form id="volunteerSignupForm">
+          <div class="form-group">
+            <label for="volFullName">Full Name *</label>
+            <input type="text" id="volFullName" class="form-input" placeholder="e.g., Peter Kamau Mwangi" required />
+          </div>
+
+          <div class="inline-comment-row">
+            <div class="form-group">
+              <label for="volPhone">Phone / WhatsApp Number *</label>
+              <input type="tel" id="volPhone" class="form-input" placeholder="e.g., 0712 345 678" required />
+            </div>
+            <div class="form-group">
+              <label for="volWard">Your Ward *</label>
+              <select id="volWard" class="form-input" required>
+                <option value="Central Ward">Central Ward</option>
+                <option value="North Ward">North Ward</option>
+                <option value="South Ward">South Ward</option>
+                <option value="East Ward">East Ward</option>
+                <option value="West Ward">West Ward</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="volRole">Preferred Volunteer Role</label>
+            <select id="volRole" class="form-input">
+              <option value="Ward Mobilizer">Ward Mobilizer</option>
+              <option value="Youth & Campus Coordinator">Youth &amp; Campus Coordinator</option>
+              <option value="Polling Station Agent">Polling Station Agent</option>
+              <option value="Digital & Social Media Team">Digital &amp; Social Media Team</option>
+              <option value="Women & Trader Outreach">Women &amp; Trader Outreach</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="volNotes">Skills, Polling Station, or Availability (Optional)</label>
+            <textarea id="volNotes" class="form-input" style="min-height:80px;" placeholder="Share your polling center or how you would like to support..."></textarea>
+          </div>
+
+          <button type="submit" id="volSubmitBtn" class="btn btn-primary" style="width:100%;">Submit Volunteer Registration</button>
+        </form>
+      </div>
+    </div>
+  </div>
   <!-- External Frontend Logic -->
   <script src="/app.js"></script>
 </body>

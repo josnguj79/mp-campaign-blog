@@ -59,6 +59,16 @@ async function initDatabase() {
       likes INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
+    `CREATE TABLE IF NOT EXISTS volunteers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      full_name TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      ward TEXT DEFAULT 'Constituency HQ',
+      role TEXT DEFAULT 'Ward Mobilizer',
+      notes TEXT DEFAULT '',
+      status TEXT DEFAULT 'Pending',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
     `CREATE TABLE IF NOT EXISTS comments (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       post_id INTEGER NOT NULL,
@@ -336,7 +346,105 @@ app.delete('/api/comments/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to delete comment' });
   }
 });
+// POST public volunteer registration
+app.post('/api/volunteers', async (req, res) => {
+  const { full_name, phone, ward, role, notes } = req.body || {};
 
+  if (!full_name || !phone) {
+    return res.status(400).json({ error: 'Full name and phone number are required' });
+  }
+
+  try {
+    const result = await db.execute({
+      sql: `INSERT INTO volunteers (full_name, phone, ward, role, notes)
+            VALUES (?, ?, ?, ?, ?)
+            RETURNING *`,
+      args: [
+        full_name.trim(),
+        phone.trim(),
+        (ward || 'All Wards').trim(),
+        (role || 'Ward Mobilizer').trim(),
+        (notes || '').trim()
+      ]
+    });
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Error registering volunteer:', err);
+    res.status(500).json({ error: 'Failed to submit volunteer registration' });
+  }
+});
+
+// GET all volunteers (Protected by ADMIN_SECRET)
+app.get('/api/volunteers', async (req, res) => {
+  if (!isAuthorizedAdmin(req)) {
+    return res.status(401).json({ error: 'Invalid Campaign Admin Passkey' });
+  }
+
+  try {
+    const result = await db.execute('SELECT * FROM volunteers ORDER BY created_at DESC');
+    res.json(result.rows || []);
+  } catch (err) {
+    console.error('Error fetching volunteers:', err);
+    res.status(500).json({ error: 'Failed to load volunteers' });
+  }
+});
+
+// PATCH update volunteer status (Pending / Active / Contacted) (Protected by ADMIN_SECRET)
+app.patch('/api/volunteers/:id', async (req, res) => {
+  const volunteerId = Number(req.params.id);
+  const { status } = req.body || {};
+  const allowedStatuses = ['Pending', 'Active', 'Contacted'];
+
+  if (!Number.isInteger(volunteerId) || volunteerId <= 0) {
+    return res.status(400).json({ error: 'Invalid volunteer ID' });
+  }
+  if (!isAuthorizedAdmin(req)) {
+    return res.status(401).json({ error: 'Invalid Campaign Admin Passkey' });
+  }
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({ error: 'Invalid status value' });
+  }
+
+  try {
+    const updated = await db.execute({
+      sql: 'UPDATE volunteers SET status = ? WHERE id = ? RETURNING *',
+      args: [status, volunteerId]
+    });
+    if (updated.rows.length === 0) {
+      return res.status(404).json({ error: 'Volunteer not found' });
+    }
+    res.json(updated.rows[0]);
+  } catch (err) {
+    console.error('Error updating volunteer status:', err);
+    res.status(500).json({ error: 'Failed to update volunteer status' });
+  }
+});
+
+// DELETE remove a volunteer record (Protected by ADMIN_SECRET)
+app.delete('/api/volunteers/:id', async (req, res) => {
+  const volunteerId = Number(req.params.id);
+
+  if (!Number.isInteger(volunteerId) || volunteerId <= 0) {
+    return res.status(400).json({ error: 'Invalid volunteer ID' });
+  }
+  if (!isAuthorizedAdmin(req)) {
+    return res.status(401).json({ error: 'Invalid Campaign Admin Passkey' });
+  }
+
+  try {
+    const deleted = await db.execute({
+      sql: 'DELETE FROM volunteers WHERE id = ? RETURNING id',
+      args: [volunteerId]
+    });
+    if (deleted.rows.length === 0) {
+      return res.status(404).json({ error: 'Volunteer not found' });
+    }
+    res.json({ deleted: true, id: volunteerId });
+  } catch (err) {
+    console.error('Error deleting volunteer:', err);
+    res.status(500).json({ error: 'Failed to delete volunteer' });
+  }
+});
 // Serve Secretariat Dashboard at /admin (before wildcard fallback)
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));

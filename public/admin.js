@@ -1,4 +1,5 @@
 let posts = [];
+let volunteers = [];
 let editingPostId = null;
 let currentTab = 'posts';
 let commentSearchQuery = '';
@@ -63,8 +64,17 @@ document.getElementById('adminLoginForm').addEventListener('submit', async (e) =
 });
 
 async function loadDashboardData() {
-  const res = await fetch('/api/posts');
-  posts = await res.json();
+  const passkey = getAdminKey();
+  const [postsRes, volRes] = await Promise.all([
+    fetch('/api/posts'),
+    fetch('/api/volunteers', {
+      headers: { 'x-admin-key': passkey }
+    })
+  ]);
+
+  posts = await postsRes.json();
+  volunteers = volRes.ok ? await volRes.json() : [];
+
   syncWardFilterOptions();
   renderDashboard();
 }
@@ -126,6 +136,9 @@ function renderDashboard() {
   document.getElementById('tabPostCount').textContent = posts.length;
   document.getElementById('tabCommentCount').textContent = allComments.length;
 
+  const volCountEl = document.getElementById('tabVolunteerCount');
+  if (volCountEl) volCountEl.textContent = volunteers.length;
+
   const filterBar = document.getElementById('commentFilterBar');
   if (filterBar) {
     filterBar.classList.toggle('active', currentTab === 'comments');
@@ -155,7 +168,7 @@ function renderDashboard() {
         </div>`
       )
       .join('');
-  } else {
+  } else if (currentTab === 'comments') {
     const filteredComments = allComments.filter((c) => {
       const wardLabel = (c.ward || 'Resident').trim();
       const matchesWard =
@@ -200,6 +213,36 @@ function renderDashboard() {
           </div>`
         )
         .join('');
+  } else if (currentTab === 'volunteers') {
+    if (volunteers.length === 0) {
+      listEl.innerHTML = `<p style="padding:1.5rem;color:var(--slate-500);">No ward volunteers registered yet.</p>`;
+      return;
+    }
+
+    listEl.innerHTML = volunteers
+      .map((v) => {
+        const safeStatus = ['Pending', 'Active', 'Contacted'].includes(v.status)
+          ? v.status
+          : 'Pending';
+        return `
+          <div class="item-row">
+            <div>
+              <div class="item-meta">
+                ${escapeHTML(v.ward || 'All Wards')} &bull; ${escapeHTML(v.role || 'Ward Mobilizer')} &bull;
+                <span class="status-pill status-${safeStatus}">${escapeHTML(safeStatus)}</span>
+              </div>
+              <div class="item-title">${escapeHTML(v.full_name)} &mdash; <span style="font-weight:600;color:var(--slate-600);">${escapeHTML(v.phone)}</span></div>
+              ${v.notes ? `<div class="item-desc">${escapeHTML(v.notes)}</div>` : ''}
+            </div>
+            <div class="item-actions">
+              <button class="btn btn-edit" onclick="setVolunteerStatus(${v.id}, 'Active')">Mark Active</button>
+              <button class="btn btn-edit" onclick="setVolunteerStatus(${v.id}, 'Contacted')">Contacted</button>
+              <button class="btn btn-danger" onclick="deleteVolunteer(${v.id})">Remove</button>
+            </div>
+          </div>
+        `;
+      })
+      .join('');
   }
 }
 
@@ -207,6 +250,7 @@ function switchAdminTab(tab) {
   currentTab = tab;
   document.getElementById('tabPostsBtn').classList.toggle('active', tab === 'posts');
   document.getElementById('tabCommentsBtn').classList.toggle('active', tab === 'comments');
+  document.getElementById('tabVolunteersBtn').classList.toggle('active', tab === 'volunteers');
   renderDashboard();
 }
 
@@ -313,7 +357,40 @@ async function deleteComment(commentId) {
     alert(err.message);
   }
 }
+async function setVolunteerStatus(volunteerId, status) {
+  const passkey = getAdminKey();
+  try {
+    const res = await fetch(`/api/volunteers/${volunteerId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-key': passkey
+      },
+      body: JSON.stringify({ status })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to update status');
+    await loadDashboardData();
+  } catch (err) {
+    alert(err.message);
+  }
+}
 
+async function deleteVolunteer(volunteerId) {
+  if (!confirm('Remove this volunteer record from Turso?')) return;
+  const passkey = getAdminKey();
+  try {
+    const res = await fetch(`/api/volunteers/${volunteerId}`, {
+      method: 'DELETE',
+      headers: { 'x-admin-key': passkey }
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to remove volunteer');
+    await loadDashboardData();
+  } catch (err) {
+    alert(err.message);
+  }
+}
 // Auto-unlock if session passkey is already stored
 (async function initAdmin() {
   const saved = getAdminKey();

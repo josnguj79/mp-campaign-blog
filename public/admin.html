@@ -167,6 +167,17 @@
       background: var(--slate-200); color: var(--slate-700);
     }
     .admin-tab.active { background: var(--navy-900); color: var(--white); }
+    .status-pill {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .status-Pending { background: #fef3c7; color: #92400e; }
+    .status-Active { background: #d1fae5; color: #065f46; }
+    .status-Contacted { background: #dbeafe; color: #1e40af; }
     .comment-filter-bar {
       display: none;
       padding: 0.85rem 1.35rem;
@@ -318,7 +329,8 @@
         <div class="panel-header">
           <div class="admin-tabs">
             <button class="admin-tab active" id="tabPostsBtn" onclick="switchAdminTab('posts')">Dispatches (<span id="tabPostCount">0</span>)</button>
-            <button class="admin-tab" id="tabCommentsBtn" onclick="switchAdminTab('comments')">Comment Moderation (<span id="tabCommentCount">0</span>)</button>
+            <button class="admin-tab" id="tabCommentsBtn" onclick="switchAdminTab('comments')">Comments (<span id="tabCommentCount">0</span>)</button>
+            <button class="admin-tab" id="tabVolunteersBtn" onclick="switchAdminTab('volunteers')">Volunteers (<span id="tabVolunteerCount">0</span>)</button>
           </div>
         </div>
         <div class="comment-filter-bar" id="commentFilterBar">

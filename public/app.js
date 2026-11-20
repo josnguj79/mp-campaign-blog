@@ -525,6 +525,56 @@ document.querySelectorAll('.modal-backdrop').forEach((backdrop) => {
     if (e.target === backdrop) backdrop.classList.remove('open');
   });
 });
+function openVolunteerModal() {
+  const successBox = document.getElementById('volunteerSuccessBox');
+  if (successBox) {
+    successBox.style.display = 'none';
+    successBox.textContent = '';
+  }
+  const navLinks = document.getElementById('navLinks');
+  if (navLinks) navLinks.classList.remove('open');
+  document.getElementById('volunteerModal').classList.add('open');
+}
 
+const volunteerFormEl = document.getElementById('volunteerSignupForm');
+if (volunteerFormEl) {
+  volunteerFormEl.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('volSubmitBtn');
+    const successBox = document.getElementById('volunteerSuccessBox');
+
+    btn.disabled = true;
+    btn.textContent = 'Submitting Registration...';
+
+    const payload = {
+      full_name: document.getElementById('volFullName').value.trim(),
+      phone: document.getElementById('volPhone').value.trim(),
+      ward: document.getElementById('volWard').value,
+      role: document.getElementById('volRole').value,
+      notes: document.getElementById('volNotes').value.trim()
+    };
+
+    try {
+      const res = await fetch('/api/volunteers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Could not register volunteer');
+
+      volunteerFormEl.reset();
+      if (successBox) {
+        successBox.textContent = `Asante, ${data.full_name}! You are registered for ${data.ward} (${data.role}). Our Secretariat team will contact you shortly.`;
+        successBox.style.display = 'block';
+      }
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Submit Volunteer Registration';
+    }
+  });
+}
 // Boot application
 fetchPosts();
