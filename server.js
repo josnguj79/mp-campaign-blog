@@ -26,7 +26,7 @@ const dbUrl = (process.env.TURSO_DATABASE_URL || '').trim();
 const dbToken = (process.env.TURSO_AUTH_TOKEN || '').trim();
 
 if (!dbUrl) {
-  console.warn('⚠️ TURSO_DATABASE_URL not set — using local SQLite file (local.db)');
+  console.warn('TURSO_DATABASE_URL not set — using local SQLite file (local.db)');
 }
 
 const db = createClient({
@@ -45,7 +45,7 @@ function isAuthorizedAdmin(req) {
   return String(provided).trim() === secret;
 }
 
-// Initialize Turso Schema & Seed Initial Posts
+// Initialize Turso Schema & Seed Initial Data
 async function initDatabase() {
   await db.batch([
     `CREATE TABLE IF NOT EXISTS posts (
@@ -59,6 +59,15 @@ async function initDatabase() {
       likes INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
+    `CREATE TABLE IF NOT EXISTS comments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      post_id INTEGER NOT NULL,
+      author_name TEXT NOT NULL,
+      ward TEXT DEFAULT 'Resident',
+      body TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+    )`,
     `CREATE TABLE IF NOT EXISTS volunteers (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       full_name TEXT NOT NULL,
@@ -69,20 +78,22 @@ async function initDatabase() {
       status TEXT DEFAULT 'Pending',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
-    `CREATE TABLE IF NOT EXISTS comments (
+    `CREATE TABLE IF NOT EXISTS ward_scorecards (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      post_id INTEGER NOT NULL,
-      author_name TEXT NOT NULL,
-      ward TEXT DEFAULT 'Resident',
-      body TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+      ward_key TEXT UNIQUE NOT NULL,
+      ward_name TEXT NOT NULL,
+      allocation TEXT NOT NULL,
+      project TEXT NOT NULL,
+      progress INTEGER DEFAULT 0,
+      milestone TEXT NOT NULL,
+      sort_order INTEGER DEFAULT 0,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`
   ], 'write');
 
-  // Seed initial dispatches if database is empty
-  const existing = await db.execute('SELECT COUNT(*) as count FROM posts');
-  if (Number(existing.rows[0].count) === 0) {
+  // Seed initial dispatches across all 4 sections with endorsements & Enkiguena comments
+  const existingPosts = await db.execute('SELECT COUNT(*) as count FROM posts');
+  if (Number(existingPosts.rows[0].count) === 0) {
     await db.batch([
       {
         sql: `INSERT INTO posts (title, category, ward, summary, content, image_url, likes)
@@ -91,24 +102,187 @@ async function initDatabase() {
           'Digital Hubs & Youth Tech-Bursary Blueprint for 2027',
           'Manifesto & Policy',
           'Central Ward',
-          'Solar-backed ICT innovation hubs, coding bootcamps, and transparent online NG-CDF bursary tracking in every ward.',
-          'Our youth should not have to leave the constituency to access remote digital jobs. Under our 2027 Constituency Transformation Plan, we will establish solar-backed ICT innovation hubs in all 5 wards, paired with direct skill grants and an open online NG-CDF bursary tracker so every student and parent can verify allocations in real time.',
+          'Solar-backed ICT innovation hubs, coding bootcamps, and transparent online NG-CDF bursary tracking across all 5 wards.',
+          'Our youth should not have to leave the constituency to access remote digital jobs. Under our 2027 Constituency Transformation Plan, we will establish solar-backed ICT innovation hubs in all 5 wards, paired with direct TVET and university skill grants and an open online NG-CDF bursary tracker so every family can verify allocations transparently.',
           'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1000&q=80',
-          48
+          142
         ]
       },
       {
         sql: `INSERT INTO posts (title, category, ward, summary, content, image_url, likes)
               VALUES (?, ?, ?, ?, ?, ?, ?)`,
         args: [
-          'Market Sheds, Cold Storage & Zero-Interest Biashara Fund',
+          'Open NG-CDF Water & Solar Borehole Charter',
+          'Manifesto & Policy',
+          'North Ward',
+          'Published quarterly ward water budgets, solar pump maintenance schedules, and livestock trough expansion plans.',
+          'Reliable water is dignity and survival. Every ward development committee will publish quarterly project milestones, contractor timelines, and NG-CDF disbursements so residents can track borehole rehabilitation, manyatta water pans, and school tank installations without guesswork.',
+          'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1000&q=80',
+          118
+        ]
+      },
+      {
+        sql: `INSERT INTO posts (title, category, ward, summary, content, image_url, likes)
+              VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        args: [
+          'North & West Ward Manyatta Baraza: Water, Pastures & School Labs',
+          'Constituency Tours',
+          'North Ward',
+          'Highlights from our consultative barazas with elders, Moran vanguard, and parents on borehole reticulation and science labs.',
+          'Across our consultative ward barazas in North and West Wards, residents prioritized clean water points near grazing corridors, improved secondary school laboratory equipment, and feeder road drainage ahead of rainy seasons. Every priority raised at the baraza has been logged into our ward action tracker.',
+          'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1000&q=80',
+          96
+        ]
+      },
+      {
+        sql: `INSERT INTO posts (title, category, ward, summary, content, image_url, likes)
+              VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        args: [
+          'East Ward Townhall: Youth Voices, Clinic Solar & Market Access',
+          'Constituency Tours',
+          'East Ward',
+          'Townhall takeaways from East Ward focusing on maternal clinic backup power, youth sports academies, and market road links.',
+          'During the East Ward community townhall, young creatives, boda operators, and health volunteers shared practical ideas on extending clinic lighting hours, upgrading local playfields, and linking East Ward farm produce directly to regional markets.',
+          'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1000&q=80',
+          87
+        ]
+      },
+      {
+        sql: `INSERT INTO posts (title, category, ward, summary, content, image_url, likes)
+              VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        args: [
+          'Market Sheds, Solar Cold Storage & Zero-Interest Biashara Fund',
           'Youth & Economy',
           'South Ward',
-          'Upgrading open-air markets with solar cold-storage units and interest-free table-banking boosts for mama mboga and boda riders.',
-          'Small traders are the backbone of our constituency economy. During our South Ward market baraza, traders highlighted post-harvest losses and predatory daily loan interest rates. Our legislative and NG-CDF partnership will construct modern sheltered stalls with solar cold storage and establish a revolving Constituency Biashara Boost Fund.',
+          'Upgrading open-air markets with solar cold-storage units and revolving table-banking boosts for traders and youth.',
+          'Small traders and young entrepreneurs drive daily household livelihoods. Through our Youth & Economy blueprint, we will build modern sheltered market stalls with solar cold storage to cut spoilage and establish structured revolving table-banking support for women and youth enterprises.',
           'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1000&q=80',
-          34
+          164
         ]
+      },
+      {
+        sql: `INSERT INTO posts (title, category, ward, summary, content, image_url, likes)
+              VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        args: [
+          'Agri-Value Chains & Remote Digital Work Fellowship',
+          'Youth & Economy',
+          'Central Ward',
+          'Connecting graduates and agro-processors with digital freelancing mentorship, equipment leasing, and cooperative buyers.',
+          'We are pairing practical digital skills—web engineering, data, digital marketing, and remote customer operations—with cooperative support for horticultural and livestock value addition so young people can earn sustainable incomes locally.',
+          'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1000&q=80',
+          129
+        ]
+      },
+      {
+        sql: `INSERT INTO posts (title, category, ward, summary, content, image_url, likes)
+              VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        args: [
+          'Secretariat Statement: Full Transparency on Bursary & Ward Audit Rollout',
+          'Press Releases',
+          'All Wards',
+          'Official campaign secretariat release welcoming public scrutiny, ward-level project scorecards, and peaceful civic dialogue.',
+          'The Hon. David Kamau 2027 Secretariat reaffirms our commitment to issue-based leadership, open NG-CDF accountability, and respectful Enkiguena across every ward. All ward scorecard metrics and citizen submissions are published openly for community verification.',
+          'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=1000&q=80',
+          79
+        ]
+      },
+      {
+        sql: `INSERT INTO posts (title, category, ward, summary, content, image_url, likes)
+              VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        args: [
+          'Press Release: Launch of Moran & Community Vanguard Mobilization Desk',
+          'Press Releases',
+          'West Ward',
+          'Formal rollout of ward-level volunteer coordination to support voter civic education, baraza logistics, and ward feedback.',
+          'Our newly launched Moran & Community Vanguard desk brings together ward mobilizers, youth coordinators, and community elders to organize peaceful townhalls, share policy summaries, and gather verified ward-level priorities.',
+          'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1000&q=80',
+          104
+        ]
+      }
+    ], 'write');
+  }
+
+  // Seed initial Enkiguena comments if comments table is empty
+  const existingComments = await db.execute('SELECT COUNT(*) as count FROM comments');
+  if (Number(existingComments.rows[0].count) === 0) {
+    const seededPosts = await db.execute('SELECT id, title FROM posts ORDER BY id ASC');
+    const postRows = seededPosts.rows || [];
+
+    const sampleCommentsByIndex = [
+      [
+        { author_name: 'Naserian Ole Tipis', ward: 'Central Ward', body: 'Publishing bursary criteria and hub schedules online will save parents endless trips and build real trust.' },
+        { author_name: 'Kevin Mutua', ward: 'Central Ward', body: 'Please include practical coding and digital freelancing tracks for TVET and secondary leavers.' }
+      ],
+      [
+        { author_name: 'Pariken Saitoti', ward: 'North Ward', body: 'Solar-powered pumps with clear maintenance schedules will keep water flowing even during dry spells.' },
+        { author_name: 'Grace Wanjiku', ward: 'North Ward', body: 'I support publishing every borehole budget line clearly so the community can monitor progress.' }
+      ],
+      [
+        { author_name: 'Loice Nangurai', ward: 'North Ward', body: 'Thank you for holding the baraza directly with elders and families instead of closed-door meetings.' },
+        { author_name: 'Samuel Kiprop', ward: 'West Ward', body: 'Lab equipment and road culverts are urgent—glad to see them captured in the ward plan.' }
+      ],
+      [
+        { author_name: 'Amina Hassan', ward: 'East Ward', body: 'Reliable solar backup at our local clinic is vital for evening mothers and emergencies.' },
+        { author_name: 'Dennis Otieno', ward: 'East Ward', body: 'Upgrading youth sports and community grounds will keep young people engaged positively.' }
+      ],
+      [
+        { author_name: 'Mary Ndunge', ward: 'South Ward', body: 'Cold storage at the market will stop fresh produce from going to waste over the weekend.' },
+        { author_name: 'Josephine Karanja', ward: 'South Ward', body: 'Affordable revolving table-banking support is exactly what market traders need to grow stock.' }
+      ],
+      [
+        { author_name: 'Brian Mwangi', ward: 'Central Ward', body: 'Connecting youth to remote tech jobs and cooperative value chains is a smart long-term play.' }
+      ],
+      [
+        { author_name: 'Peter ole Kuyioni', ward: 'West Ward', body: 'Peaceful, issue-focused politics and transparent scorecards set a strong standard for 2027.' }
+      ],
+      [
+        { author_name: 'Faith Chebet', ward: 'West Ward', body: 'Just registered with the Vanguard—ready to help mobilize our ward for constructive barazas.' }
+      ]
+    ];
+
+    const commentInserts = [];
+    postRows.forEach((post, idx) => {
+      const commentsForPost = sampleCommentsByIndex[idx] || [];
+      for (const c of commentsForPost) {
+        commentInserts.push({
+          sql: `INSERT INTO comments (post_id, author_name, ward, body) VALUES (?, ?, ?, ?)`,
+          args: [post.id, c.author_name, c.ward, c.body]
+        });
+      }
+    });
+
+    if (commentInserts.length > 0) {
+      await db.batch(commentInserts, 'write');
+    }
+  }
+  // Seed ward NG-CDF scorecards if ward_scorecards table is empty
+  const existingScorecards = await db.execute('SELECT COUNT(*) as count FROM ward_scorecards');
+  if (Number(existingScorecards.rows[0].count) === 0) {
+    await db.batch([
+      {
+        sql: `INSERT INTO ward_scorecards (ward_key, ward_name, allocation, project, progress, milestone, sort_order)
+              VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        args: ['Central', 'Central Ward', 'KES 18.5M Target', 'Youth Digital Hub, TVET Bursary Portal & Town Market Drainage', 78, 'Hub Site & Bursary Audit Ready', 1]
+      },
+      {
+        sql: `INSERT INTO ward_scorecards (ward_key, ward_name, allocation, project, progress, milestone, sort_order)
+              VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        args: ['North', 'North Ward', 'KES 16.0M Target', 'Solar Borehole Reticulation & Livestock Sale-Yard Water Troughs', 64, 'Hydro-Survey & Piping Plan', 2]
+      },
+      {
+        sql: `INSERT INTO ward_scorecards (ward_key, ward_name, allocation, project, progress, milestone, sort_order)
+              VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        args: ['South', 'South Ward', 'KES 17.2M Target', 'Market Sheds, Solar Cold Storage & Biashara Table-Banking Boost', 82, 'Trader Designs & Cold Unit Spec', 3]
+      },
+      {
+        sql: `INSERT INTO ward_scorecards (ward_key, ward_name, allocation, project, progress, milestone, sort_order)
+              VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        args: ['East', 'East Ward', 'KES 15.4M Target', 'Secondary School Lab Upgrades & All-Weather Feeder Culverts', 58, 'School BoM & Road Needs Mapped', 4]
+      },
+      {
+        sql: `INSERT INTO ward_scorecards (ward_key, ward_name, allocation, project, progress, milestone, sort_order)
+              VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        args: ['West', 'West Ward', 'KES 14.8M Target', 'Maternal Clinic Solar Backup, Water Pans & Youth Agri-Grants', 71, 'Manyatta Water Pan Priority List', 5]
       }
     ], 'write');
   }
@@ -346,6 +520,7 @@ app.delete('/api/comments/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to delete comment' });
   }
 });
+
 // POST public volunteer registration
 app.post('/api/volunteers', async (req, res) => {
   const { full_name, phone, ward, role, notes } = req.body || {};
@@ -445,6 +620,69 @@ app.delete('/api/volunteers/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to delete volunteer' });
   }
 });
+
+// GET all ward NG-CDF scorecards (Public)
+app.get('/api/scorecards', async (req, res) => {
+  try {
+    const result = await db.execute(
+      'SELECT * FROM ward_scorecards ORDER BY sort_order ASC, id ASC'
+    );
+    res.json(result.rows || []);
+  } catch (err) {
+    console.error('Error fetching scorecards:', err);
+    res.status(500).json({ error: 'Failed to load ward scorecards' });
+  }
+});
+
+// PUT update a ward NG-CDF scorecard (Protected by ADMIN_SECRET)
+app.put('/api/scorecards/:id', async (req, res) => {
+  const scorecardId = Number(req.params.id);
+  const { ward_name, allocation, project, progress, milestone } = req.body || {};
+
+  if (!Number.isInteger(scorecardId) || scorecardId <= 0) {
+    return res.status(400).json({ error: 'Invalid scorecard ID' });
+  }
+  if (!isAuthorizedAdmin(req)) {
+    return res.status(401).json({ error: 'Invalid Campaign Admin Passkey' });
+  }
+  if (!ward_name || !allocation || !project || !milestone) {
+    return res.status(400).json({ error: 'Ward name, allocation, project, and milestone are required' });
+  }
+
+  const parsedProgress = Math.max(0, Math.min(100, Number(progress) || 0));
+
+  try {
+    const updated = await db.execute({
+      sql: `UPDATE ward_scorecards
+            SET ward_name = ?,
+                allocation = ?,
+                project = ?,
+                progress = ?,
+                milestone = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            RETURNING *`,
+      args: [
+        ward_name.trim(),
+        allocation.trim(),
+        project.trim(),
+        parsedProgress,
+        milestone.trim(),
+        scorecardId
+      ]
+    });
+
+    if (updated.rows.length === 0) {
+      return res.status(404).json({ error: 'Ward scorecard not found' });
+    }
+
+    res.json(updated.rows[0]);
+  } catch (err) {
+    console.error('Error updating scorecard:', err);
+    res.status(500).json({ error: 'Failed to update ward scorecard' });
+  }
+});
+
 // Serve Secretariat Dashboard at /admin (before wildcard fallback)
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));

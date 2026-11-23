@@ -82,11 +82,13 @@
         transparent 48px
       );
       color: var(--slate-200);
-      font-size: 0.8rem;
-      padding: 0.45rem 1.5rem;
+      font-size: 0.78rem;
+      padding: 0.45rem 1.25rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 0.5rem 1rem;
+      flex-wrap: wrap;
     }
     .civic-banner span strong { color: var(--ochre-400); }
 
@@ -102,19 +104,22 @@
     .nav-container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 0.85rem 1.5rem;
+      padding: 0.75rem 1.25rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 1.25rem;
+      gap: 0.75rem;
+      position: relative;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 0.9rem;
+      gap: 0.75rem;
       text-decoration: none;
       color: var(--obsidian-900);
+      min-width: 0;
+      flex: 1 1 auto;
     }
 
     /* Signature Touch 2: Maasai Warrior Shield Emblem (Long'o) */
@@ -138,8 +143,26 @@
       flex-shrink: 0;
     }
 
-    .brand-text h1 { font-size: 1.12rem; font-weight: 900; line-height: 1.15; color: var(--obsidian-900); }
-    .brand-text p { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--crimson-600); }
+    .brand-text { min-width: 0; }
+    .brand-text h1 {
+      font-size: 1.08rem;
+      font-weight: 900;
+      line-height: 1.15;
+      color: var(--obsidian-900);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .brand-text p {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--crimson-600);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
     .nav-links {
       display: flex;
@@ -158,7 +181,14 @@
 
     .nav-links a:hover { color: var(--crimson-600); }
 
-    .nav-actions { display: flex; align-items: center; gap: 0.65rem; }
+    .mobile-only-portal { display: none; }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
 
     .mobile-menu-btn {
       display: none;
@@ -489,6 +519,7 @@
       font-size: 0.82rem;
       color: #a8a29e;
     }
+
     /* Ward Development & NG-CDF Transparency Scorecard */
     .scorecard-section {
       max-width: 1200px;
@@ -621,9 +652,7 @@
       font-weight: 600;
     }
 
-    .progress-wrap {
-      width: 100%;
-    }
+    .progress-wrap { width: 100%; }
 
     .progress-meta {
       display: flex;
@@ -657,10 +686,7 @@
       border-top: 1px solid var(--slate-200);
     }
 
-    .ward-status {
-      color: var(--acacia-700);
-      font-weight: 800;
-    }
+    .ward-status { color: var(--acacia-700); font-weight: 800; }
 
     .ward-link-btn {
       background: none;
@@ -671,13 +697,147 @@
       cursor: pointer;
     }
 
-    .ward-link-btn:hover {
-      text-decoration: underline;
+    .ward-link-btn:hover { text-decoration: underline; }
+
+    /* Manyatta & Ward Pulse NG-CDF Slideshow */
+    .pulse-divider {
+      border: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.14);
+      margin: 1.15rem 0;
     }
+
+    .ngcdf-slideshow-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .ngcdf-tag {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ochre-400);
+    }
+
+    .ngcdf-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .ngcdf-nav-btn {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--white);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: background 0.15s ease;
+    }
+
+    .ngcdf-nav-btn:hover {
+      background: var(--ochre-400);
+      color: var(--obsidian-950);
+    }
+
+    .ngcdf-slide-box {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-left: 3px solid var(--ochre-400);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 0.95rem;
+    }
+
+    .ngcdf-slide-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.5rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .ngcdf-ward-title {
+      font-family: 'Merriweather', Georgia, serif;
+      font-size: 0.95rem;
+      font-weight: 900;
+      color: var(--white);
+    }
+
+    .ngcdf-amount {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--ochre-400);
+      white-space: nowrap;
+    }
+
+    .ngcdf-project-desc {
+      font-size: 0.82rem;
+      color: #e7e5e4;
+      line-height: 1.4;
+      margin-bottom: 0.65rem;
+    }
+
+    .ngcdf-meter-track {
+      height: 7px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.14);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 0.45rem;
+    }
+
+    .ngcdf-meter-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--crimson-600), var(--ochre-400) 60%, var(--acacia-500));
+      transition: width 0.25s ease;
+    }
+
+    .ngcdf-slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.74rem;
+      color: #d6d3d1;
+    }
+
+    .ngcdf-dots {
+      display: flex;
+      justify-content: center;
+      gap: 0.35rem;
+      margin-top: 0.65rem;
+    }
+
+    .ngcdf-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      border: none;
+      background: rgba(255, 255, 255, 0.28);
+      cursor: pointer;
+      padding: 0;
+      transition: all 0.15s ease;
+    }
+
+    .ngcdf-dot.active {
+      width: 18px;
+      background: var(--ochre-400);
+    }
+
+    /* Tablet & Mobile Navigation Breakpoints */
     @media (max-width: 900px) {
       .hero-inner { grid-template-columns: 1fr; }
       .pillars-grid { grid-template-columns: 1fr; }
       .footer-grid { grid-template-columns: 1fr 1fr; }
+
       .nav-links {
         display: none;
         position: absolute;
@@ -686,17 +846,83 @@
         right: 0;
         background: var(--white);
         flex-direction: column;
-        padding: 1.25rem 1.5rem;
+        padding: 1rem 1.25rem 1.25rem;
         border-bottom: 1px solid var(--slate-200);
+        border-top: 4px solid var(--crimson-600);
         box-shadow: var(--shadow-md);
-        align-items: flex-start;
+        align-items: stretch;
+        gap: 0.25rem;
+        z-index: 60;
       }
+
       .nav-links.open { display: flex; }
-      .mobile-menu-btn { display: inline-block; }
+
+      .nav-links li a {
+        display: block;
+        padding: 0.6rem 0.4rem;
+        border-bottom: 1px solid var(--slate-100);
+      }
+
+      .nav-links li:last-child a { border-bottom: none; }
+
+      .mobile-menu-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
 
+    /* Small Phone Header Polish */
     @media (max-width: 560px) {
+      .civic-banner {
+        font-size: 0.72rem;
+        padding: 0.4rem 1rem;
+      }
+
+      .nav-container {
+        padding: 0.65rem 1rem;
+        gap: 0.5rem;
+      }
+
+      .brand { gap: 0.55rem; }
+
+      .brand-emblem {
+        width: 34px;
+        height: 42px;
+        font-size: 0.74rem;
+      }
+
+      .brand-text h1 { font-size: 0.94rem; }
+
+      .brand-text p {
+        font-size: 0.62rem;
+        letter-spacing: 0.04em;
+      }
+
+      .nav-actions { gap: 0.35rem; }
+
+      .nav-actions .btn {
+        padding: 0.48rem 0.68rem;
+        font-size: 0.75rem;
+      }
+
+      .nav-actions .btn-navy { display: none; }
+
+      .mobile-only-portal { display: block; }
+
+      .mobile-menu-btn {
+        padding: 0.42rem 0.58rem;
+        font-size: 1rem;
+      }
+
       .footer-grid { grid-template-columns: 1fr; }
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--crimson-600), var(--ochre-500) 65%, var(--acacia-700));
+      transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
     }
   </style>
 </head>
@@ -782,6 +1008,18 @@
           <span>Enkiguena Submissions</span>
           <strong id="statComments">0</strong>
         </div>
+        <hr class="pulse-divider" />
+
+        <div class="ngcdf-slideshow-header">
+          <span class="ngcdf-tag">Open NG-CDF Accountability</span>
+          <div class="ngcdf-controls">
+            <button type="button" class="ngcdf-nav-btn" onclick="prevNgcdfSlide()" aria-label="Previous ward slide">&lsaquo;</button>
+            <button type="button" class="ngcdf-nav-btn" onclick="nextNgcdfSlide()" aria-label="Next ward slide">&rsaquo;</button>
+          </div>
+        </div>
+
+        <div id="ngcdfSlideViewport" onmouseenter="pauseNgcdfAutoplay()" onmouseleave="resumeNgcdfAutoplay()"></div>
+        <div class="ngcdf-dots" id="ngcdfDots"></div>
       </div>
     </div>
   </section>
@@ -949,98 +1187,141 @@
 
   <script src="/app.js"></script>
   <script>
-    (function initWardScorecard() {
-      const wardScorecards = [
-        {
-          id: 'Central',
-          name: 'Central Ward',
-          allocation: 'KES 18.5M Target',
-          project: 'Youth Digital Hub, TVET Bursary Portal & Town Market Drainage',
-          progress: 78,
-          milestone: 'Hub Site & Bursary Audit Ready'
-        },
-        {
-          id: 'North',
-          name: 'North Ward',
-          allocation: 'KES 16.0M Target',
-          project: 'Solar Borehole reticulation & Livestock Sale-Yard Water Troughs',
-          progress: 64,
-          milestone: 'Hydro-Survey & Piping Plan'
-        },
-        {
-          id: 'South',
-          name: 'South Ward',
-          allocation: 'KES 17.2M Target',
-          project: 'Market Sheds, Solar Cold Storage & Biashara Table-Banking Boost',
-          progress: 82,
-          milestone: 'Trader Designs & Cold Unit Spec'
-        },
-        {
-          id: 'East',
-          name: 'East Ward',
-          allocation: 'KES 15.4M Target',
-          project: 'Secondary School Lab Upgrades & All-Weather Feeder Culverts',
-          progress: 58,
-          milestone: 'School BoM & Road Needs Mapped'
-        },
-        {
-          id: 'West',
-          name: 'West Ward',
-          allocation: 'KES 14.8M Target',
-          project: 'Maternal Clinic Solar Backup, Water Pans & Youth Agri-Grants',
-          progress: 71,
-          milestone: 'Manyatta Water Pan Priority List'
-        }
+    (function initLiveNgcdfViews() {
+      const fallbackWards = [
+        { id: 1, ward_key: 'Central', ward_name: 'Central Ward', allocation: 'KES 18.5M Target', project: 'Youth Digital Hub, TVET Bursary Portal & Town Market Drainage', progress: 78, milestone: 'Hub Site & Bursary Audit Ready' },
+        { id: 2, ward_key: 'North', ward_name: 'North Ward', allocation: 'KES 16.0M Target', project: 'Solar Borehole Reticulation & Livestock Sale-Yard Water Troughs', progress: 64, milestone: 'Hydro-Survey & Piping Plan' },
+        { id: 3, ward_key: 'South', ward_name: 'South Ward', allocation: 'KES 17.2M Target', project: 'Market Sheds, Solar Cold Storage & Biashara Table-Banking Boost', progress: 82, milestone: 'Trader Designs & Cold Unit Spec' },
+        { id: 4, ward_key: 'East', ward_name: 'East Ward', allocation: 'KES 15.4M Target', project: 'Secondary School Lab Upgrades & All-Weather Feeder Culverts', progress: 58, milestone: 'School BoM & Road Needs Mapped' },
+        { id: 5, ward_key: 'West', ward_name: 'West Ward', allocation: 'KES 14.8M Target', project: 'Maternal Clinic Solar Backup, Water Pans & Youth Agri-Grants', progress: 71, milestone: 'Manyatta Water Pan Priority List' }
       ];
 
-      function renderScorecard(activeWard = 'All') {
-        const grid = document.getElementById('wardsScorecardGrid');
-        if (!grid) return;
+      let wardsData = fallbackWards.slice();
+      let activeSlide = 0;
+      let activeScorecardWard = 'All';
+      let autoplayTimer = null;
 
-        const visibleWards =
-          activeWard === 'All'
-            ? wardScorecards
-            : wardScorecards.filter((w) => w.id === activeWard);
+      function renderSlideshow() {
+        const viewport = document.getElementById('ngcdfSlideViewport');
+        const dotsEl = document.getElementById('ngcdfDots');
+        if (!viewport || !dotsEl || wardsData.length === 0) return;
 
-        grid.innerHTML = visibleWards
+        if (activeSlide >= wardsData.length) activeSlide = 0;
+        const slide = wardsData[activeSlide];
+        const pct = Math.max(0, Math.min(100, Number(slide.progress || 0)));
+
+        viewport.innerHTML = `
+          <div class="ngcdf-slide-box">
+            <div class="ngcdf-slide-top">
+              <span class="ngcdf-ward-title">${slide.ward_name}</span>
+              <span class="ngcdf-amount">${slide.allocation}</span>
+            </div>
+            <p class="ngcdf-project-desc">${slide.project}</p>
+            <div class="ngcdf-meter-track">
+              <div class="ngcdf-meter-fill" style="width:${pct}%;"></div>
+            </div>
+            <div class="ngcdf-slide-footer">
+              <span>${slide.milestone} (${pct}%)</span>
+              <button
+                type="button"
+                class="ward-link-btn"
+                style="color:var(--ochre-400);"
+                onclick="jumpToWardFeed('${slide.ward_key}')"
+              >Inspect Ward &rarr;</button>
+            </div>
+          </div>
+        `;
+
+        dotsEl.innerHTML = wardsData
           .map(
-            (w) => `
-            <article class="ward-box">
-              <div>
-                <div class="ward-box-top">
-                  <span class="ward-name">${w.name}</span>
-                  <span class="ward-alloc">${w.allocation}</span>
-                </div>
-                <p class="ward-project" style="margin-top:0.55rem;">${w.project}</p>
-              </div>
-
-              <div class="progress-wrap">
-                <div class="progress-meta">
-                  <span>Blueprint &amp; Readiness</span>
-                  <span>${w.progress}%</span>
-                </div>
-                <div class="progress-track">
-                  <div class="progress-fill" style="width:${w.progress}%;"></div>
-                </div>
-              </div>
-
-              <div class="ward-footer">
-                <span class="ward-status">${w.milestone}</span>
-                <button type="button" class="ward-link-btn" onclick="jumpToWardFeed('${w.id}')">
-                  View Dispatches &rarr;
-                </button>
-              </div>
-            </article>
-          `
+            (_, idx) =>
+              `<button type="button" class="ngcdf-dot ${idx === activeSlide ? 'active' : ''}" onclick="goToNgcdfSlide(${idx})" aria-label="Slide ${idx + 1}"></button>`
           )
           .join('');
       }
 
+      function renderScorecardGrid() {
+        const grid = document.getElementById('wardsScorecardGrid');
+        if (!grid) return;
+
+        const visibleWards =
+          activeScorecardWard === 'All'
+            ? wardsData
+            : wardsData.filter((w) => w.ward_key === activeScorecardWard);
+
+        grid.innerHTML = visibleWards
+          .map((w) => {
+            const pct = Math.max(0, Math.min(100, Number(w.progress || 0)));
+            return `
+              <article class="ward-box">
+                <div>
+                  <div class="ward-box-top">
+                    <span class="ward-name">${w.ward_name}</span>
+                    <span class="ward-alloc">${w.allocation}</span>
+                  </div>
+                  <p class="ward-project" style="margin-top:0.55rem;">${w.project}</p>
+                </div>
+
+                <div class="progress-wrap">
+                  <div class="progress-meta">
+                    <span>Blueprint &amp; Readiness</span>
+                    <span>${pct}%</span>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill" style="width:0%;" data-target="${pct}"></div>
+                  </div>
+                </div>
+
+                <div class="ward-footer">
+                  <span class="ward-status">${w.milestone}</span>
+                  <button type="button" class="ward-link-btn" onclick="jumpToWardFeed('${w.ward_key}')">
+                    View Dispatches &rarr;
+                  </button>
+                </div>
+              </article>
+            `;
+          })
+          .join('');
+
+        requestAnimationFrame(() => {
+          grid.querySelectorAll('.progress-fill[data-target]').forEach((bar) => {
+            bar.style.width = `${bar.dataset.target}%`;
+          });
+        });
+      }
+      window.nextNgcdfSlide = function () {
+        activeSlide = (activeSlide + 1) % wardsData.length;
+        renderSlideshow();
+      };
+
+      window.prevNgcdfSlide = function () {
+        activeSlide = (activeSlide - 1 + wardsData.length) % wardsData.length;
+        renderSlideshow();
+      };
+
+      window.goToNgcdfSlide = function (idx) {
+        activeSlide = idx;
+        renderSlideshow();
+      };
+
+      window.pauseNgcdfAutoplay = function () {
+        if (autoplayTimer) {
+          clearInterval(autoplayTimer);
+          autoplayTimer = null;
+        }
+      };
+
+      window.resumeNgcdfAutoplay = function () {
+        window.pauseNgcdfAutoplay();
+        autoplayTimer = setInterval(window.nextNgcdfSlide, 5000);
+      };
+
       window.selectScorecardWard = function (wardKey) {
+        activeScorecardWard = wardKey;
         document.querySelectorAll('#wardScorecardPills .ward-pill-btn').forEach((btn) => {
           btn.classList.toggle('active', btn.dataset.ward === wardKey);
         });
-        renderScorecard(wardKey);
+        renderScorecardGrid();
       };
 
       window.jumpToWardFeed = function (wardKey) {
@@ -1055,7 +1336,21 @@
         }
       };
 
-      renderScorecard('All');
+      fetch('/api/scorecards')
+        .then((res) => (res.ok ? res.json() : Promise.reject()))
+        .then((rows) => {
+          if (Array.isArray(rows) && rows.length > 0) {
+            wardsData = rows;
+          }
+        })
+        .catch(() => {
+          // Keep fallbackWards if offline
+        })
+        .finally(() => {
+          renderSlideshow();
+          renderScorecardGrid();
+          window.resumeNgcdfAutoplay();
+        });
     })();
   </script>
 </body>

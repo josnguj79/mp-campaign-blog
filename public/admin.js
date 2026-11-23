@@ -1,5 +1,7 @@
 let posts = [];
 let volunteers = [];
+let scorecards = [];
+let editingScorecardId = null;
 let editingPostId = null;
 let currentTab = 'posts';
 let commentSearchQuery = '';
@@ -65,15 +67,17 @@ document.getElementById('adminLoginForm').addEventListener('submit', async (e) =
 
 async function loadDashboardData() {
   const passkey = getAdminKey();
-  const [postsRes, volRes] = await Promise.all([
+  const [postsRes, volRes, cardsRes] = await Promise.all([
     fetch('/api/posts'),
     fetch('/api/volunteers', {
       headers: { 'x-admin-key': passkey }
-    })
+    }),
+    fetch('/api/scorecards')
   ]);
 
   posts = await postsRes.json();
   volunteers = volRes.ok ? await volRes.json() : [];
+  scorecards = cardsRes.ok ? await cardsRes.json() : [];
 
   syncWardFilterOptions();
   renderDashboard();
@@ -138,6 +142,9 @@ function renderDashboard() {
 
   const volCountEl = document.getElementById('tabVolunteerCount');
   if (volCountEl) volCountEl.textContent = volunteers.length;
+
+  const cardCountEl = document.getElementById('tabScorecardCount');
+  if (cardCountEl) cardCountEl.textContent = scorecards.length;
 
   const filterBar = document.getElementById('commentFilterBar');
   if (filterBar) {
@@ -243,14 +250,76 @@ function renderDashboard() {
         `;
       })
       .join('');
+  } else if (currentTab === 'scorecards') {
+    if (scorecards.length === 0) {
+      listEl.innerHTML = `<p style="padding:1.5rem;color:var(--slate-500);">No NG-CDF ward scorecards found.</p>`;
+      return;
+    }
+
+    listEl.innerHTML = scorecards
+      .map((card) => {
+        const isEditingCard = Number(editingScorecardId) === Number(card.id);
+
+        if (isEditingCard) {
+          return `
+            <div class="item-row" style="display:block;background:var(--slate-50);">
+              <div class="item-meta">Editing ${escapeHTML(card.ward_key)} Ward Scorecard</div>
+              <form onsubmit="saveScorecard(event, ${card.id})" style="margin-top:0.65rem;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;">
+                  <div class="form-group">
+                    <label>Ward Name</label>
+                    <input type="text" id="scWardName_${card.id}" class="form-input" value="${escapeHTML(card.ward_name)}" required />
+                  </div>
+                  <div class="form-group">
+                    <label>Allocation / Target</label>
+                    <input type="text" id="scAllocation_${card.id}" class="form-input" value="${escapeHTML(card.allocation)}" required />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Flagship Project &amp; Focus</label>
+                  <input type="text" id="scProject_${card.id}" class="form-input" value="${escapeHTML(card.project)}" required />
+                </div>
+                <div style="display:grid;grid-template-columns:130px 1fr;gap:0.6rem;">
+                  <div class="form-group">
+                    <label>Readiness (%)</label>
+                    <input type="number" id="scProgress_${card.id}" class="form-input" min="0" max="100" value="${Number(card.progress || 0)}" required />
+                  </div>
+                  <div class="form-group">
+                    <label>Current Milestone</label>
+                    <input type="text" id="scMilestone_${card.id}" class="form-input" value="${escapeHTML(card.milestone)}" required />
+                  </div>
+                </div>
+                <div class="item-actions">
+                  <button type="submit" class="btn btn-primary">Save to Turso</button>
+                  <button type="button" class="btn btn-edit" onclick="cancelEditScorecard()">Cancel</button>
+                </div>
+              </form>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="item-row">
+            <div>
+              <div class="item-meta">${escapeHTML(card.ward_name)} &bull; ${escapeHTML(card.allocation)} &bull; ${Number(card.progress || 0)}%</div>
+              <div class="item-title">${escapeHTML(card.project)}</div>
+              <div class="item-desc">Milestone: <strong>${escapeHTML(card.milestone)}</strong></div>
+            </div>
+            <div class="item-actions">
+              <button class="btn btn-edit" onclick="startEditScorecard(${card.id})">Edit Ward</button>
+            </div>
+          </div>
+        `;
+      })
+      .join('');
   }
 }
-
 function switchAdminTab(tab) {
   currentTab = tab;
   document.getElementById('tabPostsBtn').classList.toggle('active', tab === 'posts');
   document.getElementById('tabCommentsBtn').classList.toggle('active', tab === 'comments');
   document.getElementById('tabVolunteersBtn').classList.toggle('active', tab === 'volunteers');
+  document.getElementById('tabScorecardsBtn').classList.toggle('active', tab === 'scorecards');
   renderDashboard();
 }
 
@@ -375,7 +444,47 @@ async function setVolunteerStatus(volunteerId, status) {
     alert(err.message);
   }
 }
+function startEditScorecard(scorecardId) {
+  editingScorecardId = Number(scorecardId);
+  renderDashboard();
+}
 
+function cancelEditScorecard() {
+  editingScorecardId = null;
+  renderDashboard();
+}
+
+async function saveScorecard(event, scorecardId) {
+  event.preventDefault();
+  const passkey = getAdminKey();
+
+  const payload = {
+    adminKey: passkey,
+    ward_name: document.getElementById(`scWardName_${scorecardId}`).value.trim(),
+    allocation: document.getElementById(`scAllocation_${scorecardId}`).value.trim(),
+    project: document.getElementById(`scProject_${scorecardId}`).value.trim(),
+    progress: Number(document.getElementById(`scProgress_${scorecardId}`).value),
+    milestone: document.getElementById(`scMilestone_${scorecardId}`).value.trim()
+  };
+
+  try {
+    const res = await fetch(`/api/scorecards/${scorecardId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-key': passkey
+      },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to update scorecard');
+
+    editingScorecardId = null;
+    await loadDashboardData();
+  } catch (err) {
+    alert(err.message);
+  }
+}
 async function deleteVolunteer(volunteerId) {
   if (!confirm('Remove this volunteer record from Turso?')) return;
   const passkey = getAdminKey();
