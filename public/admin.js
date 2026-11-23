@@ -1,5 +1,7 @@
 let posts = [];
 let volunteers = [];
+let socials = [];
+let editingSocialId = null;
 let scorecards = [];
 let editingScorecardId = null;
 let editingPostId = null;
@@ -67,22 +69,23 @@ document.getElementById('adminLoginForm').addEventListener('submit', async (e) =
 
 async function loadDashboardData() {
   const passkey = getAdminKey();
-  const [postsRes, volRes, cardsRes] = await Promise.all([
+  const [postsRes, volRes, cardsRes, socialsRes] = await Promise.all([
     fetch('/api/posts'),
     fetch('/api/volunteers', {
       headers: { 'x-admin-key': passkey }
     }),
-    fetch('/api/scorecards')
+    fetch('/api/scorecards'),
+    fetch('/api/socials')
   ]);
 
   posts = await postsRes.json();
   volunteers = volRes.ok ? await volRes.json() : [];
   scorecards = cardsRes.ok ? await cardsRes.json() : [];
+  socials = socialsRes.ok ? await socialsRes.json() : [];
 
   syncWardFilterOptions();
   renderDashboard();
 }
-
 function syncWardFilterOptions() {
   const selectEl = document.getElementById('commentWardSelect');
   if (!selectEl) return;
@@ -145,6 +148,9 @@ function renderDashboard() {
 
   const cardCountEl = document.getElementById('tabScorecardCount');
   if (cardCountEl) cardCountEl.textContent = scorecards.length;
+
+  const socialCountEl = document.getElementById('tabSocialCount');
+  if (socialCountEl) socialCountEl.textContent = socials.length;
 
   const filterBar = document.getElementById('commentFilterBar');
   if (filterBar) {
@@ -312,6 +318,54 @@ function renderDashboard() {
         `;
       })
       .join('');
+  } else if (currentTab === 'socials') {
+    if (socials.length === 0) {
+      listEl.innerHTML = `<p style="padding:1.5rem;color:var(--slate-500);">No social channels configured yet.</p>`;
+      return;
+    }
+
+    listEl.innerHTML = socials
+      .map((item) => {
+        const isEditing = Number(editingSocialId) === Number(item.id);
+
+        if (isEditing) {
+          return `
+            <div class="item-row" style="display:block;background:var(--slate-50);">
+              <div class="item-meta">Editing ${escapeHTML(item.platform_key)} Channel</div>
+              <form onsubmit="saveSocialChannel(event, ${item.id})" style="margin-top:0.65rem;">
+                <div style="display:grid;grid-template-columns:1fr 2fr;gap:0.6rem;">
+                  <div class="form-group">
+                    <label>Display Label</label>
+                    <input type="text" id="socLabel_${item.id}" class="form-input" value="${escapeHTML(item.label)}" required />
+                  </div>
+                  <div class="form-group">
+                    <label>Official URL (https://...)</label>
+                    <input type="url" id="socUrl_${item.id}" class="form-input" value="${escapeHTML(item.url)}" required />
+                  </div>
+                </div>
+                <div class="item-actions">
+                  <button type="submit" class="btn btn-primary">Save Link to Turso</button>
+                  <button type="button" class="btn btn-edit" onclick="cancelEditSocialChannel()">Cancel</button>
+                </div>
+              </form>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="item-row">
+            <div>
+              <div class="item-meta">${escapeHTML(String(item.platform_key || '').toUpperCase())}</div>
+              <div class="item-title">${escapeHTML(item.label)}</div>
+              <div class="item-desc">${escapeHTML(item.url)}</div>
+            </div>
+            <div class="item-actions">
+              <button class="btn btn-edit" onclick="startEditSocialChannel(${item.id})">Edit URL</button>
+            </div>
+          </div>
+        `;
+      })
+      .join('');
   }
 }
 function switchAdminTab(tab) {
@@ -320,6 +374,7 @@ function switchAdminTab(tab) {
   document.getElementById('tabCommentsBtn').classList.toggle('active', tab === 'comments');
   document.getElementById('tabVolunteersBtn').classList.toggle('active', tab === 'volunteers');
   document.getElementById('tabScorecardsBtn').classList.toggle('active', tab === 'scorecards');
+  document.getElementById('tabSocialsBtn').classList.toggle('active', tab === 'socials');
   renderDashboard();
 }
 

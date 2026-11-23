@@ -831,7 +831,370 @@
       width: 18px;
       background: var(--ochre-400);
     }
+    /* Ward Barazas Photo Gallery & Slideshow */
+    .baraza-gallery-section {
+      max-width: 1200px;
+      margin: 0 auto 3.5rem;
+      padding: 0 1.5rem;
+    }
 
+    .baraza-shell {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--slate-200);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+
+    .baraza-header {
+      padding: 1.5rem 1.75rem;
+      background-color: var(--obsidian-950);
+      background-image:
+        repeating-linear-gradient(
+          90deg,
+          rgba(185, 28, 28, 0.16) 0px,
+          rgba(185, 28, 28, 0.16) 2px,
+          transparent 2px,
+          transparent 24px
+        ),
+        linear-gradient(135deg, var(--obsidian-950) 0%, var(--crimson-900) 100%);
+      color: var(--white);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .baraza-kicker {
+      font-size: 0.74rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ochre-400);
+      margin-bottom: 0.35rem;
+    }
+
+    .baraza-header h3 {
+      font-size: 1.35rem;
+      color: var(--white);
+      margin-bottom: 0.25rem;
+    }
+
+    .baraza-header p {
+      font-size: 0.88rem;
+      color: #e7e5e4;
+      max-width: 620px;
+    }
+
+    .baraza-stage {
+      position: relative;
+      background: var(--obsidian-950);
+      min-height: 410px;
+      display: grid;
+      grid-template-columns: 1.35fr 0.85fr;
+    }
+
+    .baraza-photo-wrap {
+      position: relative;
+      overflow: hidden;
+      background: var(--obsidian-900);
+      min-height: 360px;
+    }
+
+    .baraza-photo-wrap img {
+      width: 100%;
+      height: 100%;
+      max-height: 440px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.45s ease;
+    }
+
+    .baraza-photo-wrap:hover img {
+      transform: scale(1.02);
+    }
+
+    .baraza-counter-pill {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: rgba(18, 16, 14, 0.78);
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      color: var(--ochre-400);
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      backdrop-filter: blur(4px);
+    }
+
+    .baraza-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(18, 16, 14, 0.76);
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      color: var(--white);
+      font-size: 1.25rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: all 0.15s ease;
+      z-index: 4;
+    }
+
+    .baraza-arrow:hover {
+      background: var(--crimson-600);
+      border-color: var(--ochre-400);
+    }
+
+    .baraza-arrow.prev { left: 1rem; }
+    .baraza-arrow.next { right: 1rem; }
+
+    .baraza-caption-panel {
+      padding: 1.75rem;
+      background: var(--obsidian-900);
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1.25rem;
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .baraza-ward-badge {
+      display: inline-block;
+      background: rgba(185, 28, 28, 0.28);
+      border: 1px solid var(--ochre-400);
+      color: var(--ochre-400);
+      font-size: 0.74rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      margin-bottom: 0.75rem;
+    }
+
+    .baraza-caption-panel h4 {
+      font-family: 'Merriweather', Georgia, serif;
+      font-size: 1.2rem;
+      line-height: 1.35;
+      color: var(--white);
+      margin-bottom: 0.65rem;
+    }
+
+    .baraza-caption-panel p {
+      font-size: 0.9rem;
+      color: #d6d3d1;
+      line-height: 1.55;
+    }
+
+    .baraza-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.25rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--ochre-400);
+      padding-top: 0.85rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .baraza-thumbs {
+      padding: 1rem 1.35rem;
+      background: var(--earth-bg);
+      border-top: 1px solid var(--slate-200);
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .baraza-thumb-btn {
+      background: var(--white);
+      border: 2px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      padding: 0;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.16s ease;
+    }
+
+    .baraza-thumb-btn:hover {
+      border-color: var(--ochre-500);
+      transform: translateY(-2px);
+    }
+
+    .baraza-thumb-btn.active {
+      border-color: var(--crimson-600);
+      box-shadow: 0 4px 12px rgba(185, 28, 28, 0.22);
+    }
+
+    .baraza-thumb-btn img {
+      width: 100%;
+      height: 76px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .baraza-thumb-label {
+      padding: 0.42rem 0.55rem;
+      font-size: 0.73rem;
+      font-weight: 800;
+      color: var(--obsidian-900);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    /* Mheshimiwa Official Social Channels */
+    .civic-socials {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .civic-socials a {
+      color: var(--slate-200);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.74rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.18rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      transition: all 0.15s ease;
+    }
+
+    .civic-socials a:hover {
+      background: var(--ochre-400);
+      color: var(--obsidian-950);
+      border-color: var(--ochre-400);
+    }
+
+    .footer-socials {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 0.85rem 0 1.1rem;
+    }
+
+    .social-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.42rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.32);
+      color: var(--white);
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 700;
+      transition: all 0.18s ease;
+    }
+
+    .social-pill:hover {
+      background: var(--crimson-600);
+      border-color: var(--ochre-400);
+      transform: translateY(-1px);
+    }
+
+    .social-pill.whatsapp:hover {
+      background: var(--acacia-700);
+      border-color: var(--acacia-500);
+    }
+
+    .social-pill svg {
+      width: 15px;
+      height: 15px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 720px) {
+      .civic-socials {
+        display: none;
+      }
+    }
+    @media (max-width: 900px) {
+      .baraza-stage {
+        grid-template-columns: 1fr;
+      }
+      .baraza-caption-panel {
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+    }
+    /* Mheshimiwa Official Portrait Card */
+    .candidate-portrait-card {
+      background: rgba(18, 16, 14, 0.62);
+      border: 1px solid rgba(245, 158, 11, 0.42);
+      border-top: 4px solid var(--ochre-400);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      backdrop-filter: blur(6px);
+      box-shadow: var(--shadow-lg);
+      margin-bottom: 1.25rem;
+    }
+
+    .candidate-portrait-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      max-height: 290px;
+      overflow: hidden;
+      background: var(--obsidian-950);
+    }
+
+    .candidate-portrait-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+    }
+
+    .candidate-portrait-caption {
+      padding: 1rem 1.2rem;
+    }
+
+    .candidate-role-tag {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ochre-400);
+      margin-bottom: 0.2rem;
+    }
+
+    .candidate-portrait-caption h4 {
+      font-family: 'Merriweather', Georgia, serif;
+      font-size: 1.12rem;
+      color: var(--white);
+      margin-bottom: 0.25rem;
+    }
+
+    .candidate-portrait-caption p {
+      font-size: 0.82rem;
+      color: #d6d3d1;
+      margin-bottom: 0.85rem;
+      line-height: 1.45;
+    }
+
+    .candidate-cta-row {
+      display: flex;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+    }
     /* Tablet & Mobile Navigation Breakpoints */
     @media (max-width: 900px) {
       .hero-inner { grid-template-columns: 1fr; }
@@ -930,9 +1293,14 @@
 
   <div class="civic-banner">
     <span><strong>VISION 2027</strong> &bull; Enkiguena, Unity &amp; Transparent NG-CDF</span>
-    <span>Constituency Civic Desk</span>
+    <div class="civic-socials" aria-label="Mheshimiwa Official Social Channels">
+      <a href="https://facebook.com/" target="_blank" rel="noopener noreferrer" title="Facebook">Facebook</a>
+      <a href="https://x.com/" target="_blank" rel="noopener noreferrer" title="X (Twitter)">X / Twitter</a>
+      <a href="https://whatsapp.com/channel/" target="_blank" rel="noopener noreferrer" title="WhatsApp Channel">WhatsApp</a>
+      <a href="https://tiktok.com/" target="_blank" rel="noopener noreferrer" title="TikTok">TikTok</a>
+      <a href="https://youtube.com/" target="_blank" rel="noopener noreferrer" title="YouTube">YouTube</a>
+    </div>
   </div>
-  <div class="beadwork-strip"></div>
 
   <header>
     <div class="nav-container">
@@ -992,7 +1360,25 @@
           </div>
         </div>
       </div>
-
+      <div class="candidate-portrait-card">
+          <div class="candidate-portrait-frame">
+            <img
+              id="mheshimiwaPortraitImg"
+              src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=900&q=80"
+              alt="Hon. David Kamau — Parliamentary Candidate 2027"
+            />
+          </div>
+          <div class="beadwork-strip"></div>
+          <div class="candidate-portrait-caption">
+            <div class="candidate-role-tag">Member of Parliament Aspirant &bull; 2027</div>
+            <h4>Hon. David Kamau</h4>
+            <p>Grassroots leader championing transparent NG-CDF stewardship, youth digital hubs, and water security across every ward.</p>
+            <div class="candidate-cta-row">
+              <button type="button" class="btn btn-primary" onclick="openVolunteerModal()">Join Vanguard</button>
+              <a href="#feed" class="btn" style="background:rgba(255,255,255,0.12);color:var(--white);border:1px solid rgba(255,255,255,0.22);">Read Dispatches</a>
+            </div>
+          </div>
+        </div>
       <div class="hero-stats-card">
         <h3>Manyatta &amp; Ward Pulse</h3>
         <p>Live grassroots engagement synced with Turso</p>
@@ -1067,6 +1453,35 @@
       </div>
     </div>
   </section>
+  <!-- Ward Barazas Photo Gallery & Slideshow -->
+  <section class="baraza-gallery-section" id="baraza-gallery">
+    <div class="baraza-shell">
+      <div class="baraza-header">
+        <div>
+          <div class="baraza-kicker">Grassroots Listening Tours &amp; Enkiguena</div>
+          <h3>Ward Barazas Photo Gallery</h3>
+          <p>Moments from community consultations, elders' dialogues, youth forums, and market inspections held across all 5 wards.</p>
+        </div>
+        <div class="ward-filter-pills" id="barazaWardPills">
+          <button type="button" class="ward-pill-btn active" data-ward="All" onclick="filterBarazaGallery('All')">All Barazas</button>
+          <button type="button" class="ward-pill-btn" data-ward="Central" onclick="filterBarazaGallery('Central')">Central</button>
+          <button type="button" class="ward-pill-btn" data-ward="North" onclick="filterBarazaGallery('North')">North</button>
+          <button type="button" class="ward-pill-btn" data-ward="South" onclick="filterBarazaGallery('South')">South</button>
+          <button type="button" class="ward-pill-btn" data-ward="East" onclick="filterBarazaGallery('East')">East</button>
+          <button type="button" class="ward-pill-btn" data-ward="West" onclick="filterBarazaGallery('West')">West</button>
+        </div>
+      </div>
+
+      <div class="beadwork-strip"></div>
+
+      <div class="baraza-stage" onmouseenter="pauseBarazaAutoplay()" onmouseleave="resumeBarazaAutoplay()">
+        <div class="baraza-photo-wrap" id="barazaPhotoViewport"></div>
+        <div class="baraza-caption-panel" id="barazaCaptionViewport"></div>
+      </div>
+
+      <div class="baraza-thumbs" id="barazaThumbsGrid"></div>
+    </div>
+  </section>
   <div class="beadwork-strip"></div>
   <footer id="contact-footer">
     <div class="footer-grid">
@@ -1102,6 +1517,34 @@
         <h4>Campaign Secretariat</h4>
         <p>Constituency HQ, Main Market Road<br />Open Mon – Sat, 8:00 AM – 6:00 PM</p>
         <p>Email: desk@davidkamau2027.co.ke<br />Toll-Free Civic Line: 0800 720 2027</p>
+
+        <div class="footer-socials" aria-label="Follow Mheshimiwa on Social Media">
+          <a href="https://facebook.com/" target="_blank" rel="noopener noreferrer" class="social-pill" aria-label="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg>
+            Facebook
+          </a>
+
+          <a href="https://x.com/" target="_blank" rel="noopener noreferrer" class="social-pill" aria-label="X Twitter">
+            <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            X (Twitter)
+          </a>
+
+          <a href="https://whatsapp.com/channel/" target="_blank" rel="noopener noreferrer" class="social-pill whatsapp" aria-label="WhatsApp Channel">
+            <svg viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91C21.95 6.45 17.5 2 12.04 2zm5.82 14.01c-.24.68-1.41 1.3-1.95 1.38-.5.08-1.14.11-1.84-.11-.43-.14-.98-.32-1.68-.62-2.95-1.27-4.88-4.24-5.03-4.44-.15-.2-1.2-1.6-1.2-3.05 0-1.45.76-2.16 1.03-2.46.27-.3.59-.37.79-.37.2 0 .39 0 .56.01.18.01.42-.07.66.5.24.59.83 2.03.9 2.18.07.15.12.32.02.52-.1.2-.15.32-.3.5-.15.17-.31.38-.44.51-.15.15-.3.31-.13.61.17.3.76 1.25 1.63 2.03 1.12 1 2.06 1.31 2.36 1.46.3.15.47.12.65-.07.17-.2.74-.86.94-1.16.2-.3.39-.25.66-.15.27.1 1.72.81 2.02.96.3.15.49.22.56.35.08.12.08.72-.16 1.4z"/></svg>
+            WhatsApp Channel
+          </a>
+
+          <a href="https://tiktok.com/" target="_blank" rel="noopener noreferrer" class="social-pill" aria-label="TikTok">
+            <svg viewBox="0 0 24 24"><path d="M16.6 5.82s.51.5 0 0A4.278 4.278 0 0 1 15.54 3h-3.09v12.4a2.592 2.592 0 0 1-2.59 2.5c-1.42 0-2.6-1.16-2.6-2.6 0-1.72 1.66-3.01 3.37-2.48V9.66c-3.45-.46-6.47 2.22-6.47 5.64 0 3.33 2.76 5.7 5.69 5.7 3.14 0 5.69-2.55 5.69-5.7V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3s-1.88.09-3.24-1.48z"/></svg>
+            TikTok
+          </a>
+
+          <a href="https://youtube.com/" target="_blank" rel="noopener noreferrer" class="social-pill" aria-label="YouTube">
+            <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            YouTube
+          </a>
+        </div>
+
         <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
           <button type="button" class="btn btn-primary" onclick="openVolunteerModal()">Join Vanguard</button>
           <a href="/admin" class="btn" style="background:rgba(255,255,255,0.1);color:var(--white);border:1px solid rgba(255,255,255,0.2);">Secretariat Login</a>
@@ -1350,6 +1793,189 @@
           renderSlideshow();
           renderScorecardGrid();
           window.resumeNgcdfAutoplay();
+        });
+    })();
+  </script>
+  <script>
+    (function initBarazaPhotoGallery() {
+      const baseBarazaPhotos = [
+        {
+          wardKey: 'North',
+          wardLabel: 'North Ward • Manyatta Baraza',
+          title: 'Elders & Pastoralists Water Reticulation Dialogue',
+          caption: 'Community elders, Moran vanguard, and borehole committees mapping solar water troughs and grazing corridor water points in North Ward.',
+          date: 'October 2026',
+          attendance: '420+ Residents',
+          image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=80'
+        },
+        {
+          wardKey: 'Central',
+          wardLabel: 'Central Ward • Youth & ICT Forum',
+          title: 'Solar ICT Hub & TVET Bursary Townhall',
+          caption: 'Students, secondary leavers, and local tech trainers reviewing site blueprints for the Central Ward Digital Innovation Hub.',
+          date: 'October 2026',
+          attendance: '380+ Youth & Parents',
+          image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80'
+        },
+        {
+          wardKey: 'South',
+          wardLabel: 'South Ward • Market Traders Baraza',
+          title: 'Cold Storage & Biashara Table-Banking Consultation',
+          caption: 'Mama mboga cooperatives, livestock traders, and boda leaders inspecting market drainage and solar cold-room designs.',
+          date: 'November 2026',
+          attendance: '510+ Traders',
+          image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=80'
+        },
+        {
+          wardKey: 'East',
+          wardLabel: 'East Ward • Education & Health Baraza',
+          title: 'Secondary Lab Upgrades & Maternal Clinic Solar Review',
+          caption: 'School Boards of Management, health volunteers, and parents auditing science lab equipment and clinic backup power needs.',
+          date: 'November 2026',
+          attendance: '340+ Residents',
+          image: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80'
+        },
+        {
+          wardKey: 'West',
+          wardLabel: 'West Ward • Women & Agri-Value Baraza',
+          title: 'Water Pans, Dairy Cooperatives & Youth Agri-Grants',
+          caption: 'Women groups and smallholder farmers prioritizing seasonal water pans and cooperative milk cooling centers in West Ward.',
+          date: 'November 2026',
+          attendance: '460+ Residents',
+          image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80'
+        }
+      ];
+
+      let allPhotos = baseBarazaPhotos.slice();
+      let activeWardFilter = 'All';
+      let currentSlideIndex = 0;
+      let barazaTimer = null;
+
+      function getFilteredPhotos() {
+        if (activeWardFilter === 'All') return allPhotos;
+        return allPhotos.filter((item) =>
+          item.wardKey.toLowerCase().includes(activeWardFilter.toLowerCase())
+        );
+      }
+
+      function renderBarazaGallery() {
+        const photoEl = document.getElementById('barazaPhotoViewport');
+        const captionEl = document.getElementById('barazaCaptionViewport');
+        const thumbsEl = document.getElementById('barazaThumbsGrid');
+        if (!photoEl || !captionEl || !thumbsEl) return;
+
+        const items = getFilteredPhotos();
+        if (items.length === 0) return;
+
+        if (currentSlideIndex >= items.length) currentSlideIndex = 0;
+        const active = items[currentSlideIndex];
+
+        photoEl.innerHTML = `
+          <span class="baraza-counter-pill">Baraza ${currentSlideIndex + 1} of ${items.length}</span>
+          <button type="button" class="baraza-arrow prev" onclick="prevBarazaPhoto()" aria-label="Previous photo">&lsaquo;</button>
+          <img src="${active.image}" alt="${active.title}" />
+          <button type="button" class="baraza-arrow next" onclick="nextBarazaPhoto()" aria-label="Next photo">&rsaquo;</button>
+        `;
+
+        captionEl.innerHTML = `
+          <div>
+            <span class="baraza-ward-badge">${active.wardLabel}</span>
+            <h4>${active.title}</h4>
+            <p>${active.caption}</p>
+          </div>
+          <div>
+            <div class="baraza-meta-row">
+              <span>&#128197; ${active.date}</span>
+              <span>&#128101; ${active.attendance}</span>
+            </div>
+            <div style="margin-top:0.9rem;display:flex;gap:0.6rem;flex-wrap:wrap;">
+              <button type="button" class="btn btn-primary" onclick="jumpToWardFeed('${active.wardKey}')">
+                Read ${active.wardKey} Ward Dispatches &rarr;
+              </button>
+            </div>
+          </div>
+        `;
+
+        thumbsEl.innerHTML = items
+          .map(
+            (item, idx) => `
+            <button
+              type="button"
+              class="baraza-thumb-btn ${idx === currentSlideIndex ? 'active' : ''}"
+              onclick="selectBarazaPhoto(${idx})"
+            >
+              <img src="${item.image}" alt="${item.title}" />
+              <div class="baraza-thumb-label">${item.wardKey}: ${item.title}</div>
+            </button>
+          `
+          )
+          .join('');
+      }
+
+      window.nextBarazaPhoto = function () {
+        const items = getFilteredPhotos();
+        if (!items.length) return;
+        currentSlideIndex = (currentSlideIndex + 1) % items.length;
+        renderBarazaGallery();
+      };
+
+      window.prevBarazaPhoto = function () {
+        const items = getFilteredPhotos();
+        if (!items.length) return;
+        currentSlideIndex = (currentSlideIndex - 1 + items.length) % items.length;
+        renderBarazaGallery();
+      };
+
+      window.selectBarazaPhoto = function (idx) {
+        currentSlideIndex = idx;
+        renderBarazaGallery();
+      };
+
+      window.filterBarazaGallery = function (wardKey) {
+        activeWardFilter = wardKey;
+        currentSlideIndex = 0;
+        document.querySelectorAll('#barazaWardPills .ward-pill-btn').forEach((btn) => {
+          btn.classList.toggle('active', btn.dataset.ward === wardKey);
+        });
+        renderBarazaGallery();
+      };
+
+      window.pauseBarazaAutoplay = function () {
+        if (barazaTimer) {
+          clearInterval(barazaTimer);
+          barazaTimer = null;
+        }
+      };
+
+      window.resumeBarazaAutoplay = function () {
+        window.pauseBarazaAutoplay();
+        barazaTimer = setInterval(window.nextBarazaPhoto, 5500);
+      };
+
+      // Also pull any new 'Constituency Tours' dispatches published from /admin
+      fetch('/api/posts')
+        .then((res) => (res.ok ? res.json() : []))
+        .then((posts) => {
+          const tourPosts = (Array.isArray(posts) ? posts : []).filter(
+            (p) => p.category === 'Constituency Tours' && p.image_url
+          );
+          if (tourPosts.length > 0) {
+            const dynamicItems = tourPosts.map((p) => ({
+              wardKey: (p.ward || 'All').replace(/\s*Ward$/i, '').trim() || 'All',
+              wardLabel: `${p.ward || 'Constituency'} • Live Baraza Dispatch`,
+              title: p.title,
+              caption: p.summary,
+              date: 'Published Dispatch',
+              attendance: `${Number(p.likes || 0)} Endorsements`,
+              image: p.image_url
+            }));
+            allPhotos = [...dynamicItems, ...baseBarazaPhotos];
+          }
+        })
+        .catch(() => {})
+        .finally(() => {
+          renderBarazaGallery();
+          window.resumeBarazaAutoplay();
         });
     })();
   </script>

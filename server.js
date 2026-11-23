@@ -68,6 +68,14 @@ async function initDatabase() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
     )`,
+    `CREATE TABLE IF NOT EXISTS social_channels (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      platform_key TEXT UNIQUE NOT NULL,
+      label TEXT NOT NULL,
+      url TEXT NOT NULL,
+      sort_order INTEGER DEFAULT 0,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
     `CREATE TABLE IF NOT EXISTS volunteers (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       full_name TEXT NOT NULL,
@@ -201,7 +209,31 @@ async function initDatabase() {
       }
     ], 'write');
   }
-
+  const existingSocials = await db.execute('SELECT COUNT(*) as count FROM social_channels');
+  if (Number(existingSocials.rows[0].count) === 0) {
+    await db.batch([
+      {
+        sql: `INSERT INTO social_channels (platform_key, label, url, sort_order) VALUES (?, ?, ?, ?)`,
+        args: ['facebook', 'Facebook', 'https://facebook.com/', 1]
+      },
+      {
+        sql: `INSERT INTO social_channels (platform_key, label, url, sort_order) VALUES (?, ?, ?, ?)`,
+        args: ['x', 'X (Twitter)', 'https://x.com/', 2]
+      },
+      {
+        sql: `INSERT INTO social_channels (platform_key, label, url, sort_order) VALUES (?, ?, ?, ?)`,
+        args: ['whatsapp', 'WhatsApp Channel', 'https://whatsapp.com/channel/', 3]
+      },
+      {
+        sql: `INSERT INTO social_channels (platform_key, label, url, sort_order) VALUES (?, ?, ?, ?)`,
+        args: ['tiktok', 'TikTok', 'https://tiktok.com/', 4]
+      },
+      {
+        sql: `INSERT INTO social_channels (platform_key, label, url, sort_order) VALUES (?, ?, ?, ?)`,
+        args: ['youtube', 'YouTube', 'https://youtube.com/', 5]
+      }
+    ], 'write');
+  }
   // Seed initial Enkiguena comments if comments table is empty
   const existingComments = await db.execute('SELECT COUNT(*) as count FROM comments');
   if (Number(existingComments.rows[0].count) === 0) {
@@ -682,7 +714,60 @@ app.put('/api/scorecards/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to update ward scorecard' });
   }
 });
+// GET all Mheshimiwa social media channels (Public)
+app.get('/api/socials', async (req, res) => {
+  try {
+    const result = await db.execute(
+      'SELECT * FROM social_channels ORDER BY sort_order ASC, id ASC'
+    );
+    res.json(result.rows || []);
+  } catch (err) {
+    console.error('Error fetching social channels:', err);
+    res.status(500).json({ error: 'Failed to load social channels' });
+  }
+});
 
+// PUT update a social media channel URL/label (Protected by ADMIN_SECRET)
+app.put('/api/socials/:id', async (req, res) => {
+  const channelId = Number(req.params.id);
+  const { label, url } = req.body || {};
+
+  if (!Number.isInteger(channelId) || channelId <= 0) {
+    return res.status(400).json({ error: 'Invalid social channel ID' });
+  }
+  if (!isAuthorizedAdmin(req)) {
+    return res.status(401).json({ error: 'Invalid Campaign Admin Passkey' });
+  }
+  if (!label || !url) {
+    return res.status(400).json({ error: 'Platform label and URL are required' });
+  }
+
+  const cleanUrl = url.trim();
+  if (!/^https?:\/\//i.test(cleanUrl)) {
+    return res.status(400).json({ error: 'URL must start with https:// or http://' });
+  }
+
+  try {
+    const updated = await db.execute({
+      sql: `UPDATE social_channels
+            SET label = ?,
+                url = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            RETURNING *`,
+      args: [label.trim(), cleanUrl, channelId]
+    });
+
+    if (updated.rows.length === 0) {
+      return res.status(404).json({ error: 'Social channel not found' });
+    }
+
+    res.json(updated.rows[0]);
+  } catch (err) {
+    console.error('Error updating social channel:', err);
+    res.status(500).json({ error: 'Failed to update social channel' });
+  }
+});
 // Serve Secretariat Dashboard at /admin (before wildcard fallback)
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
