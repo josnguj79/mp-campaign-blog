@@ -1361,24 +1361,24 @@
         </div>
       </div>
       <div class="candidate-portrait-card">
-          <div class="candidate-portrait-frame">
-            <img
-              id="mheshimiwaPortraitImg"
-              src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=900&q=80"
-              alt="Hon. David Kamau — Parliamentary Candidate 2027"
-            />
-          </div>
-          <div class="beadwork-strip"></div>
-          <div class="candidate-portrait-caption">
-            <div class="candidate-role-tag">Member of Parliament Aspirant &bull; 2027</div>
-            <h4>Hon. David Kamau</h4>
-            <p>Grassroots leader championing transparent NG-CDF stewardship, youth digital hubs, and water security across every ward.</p>
-            <div class="candidate-cta-row">
-              <button type="button" class="btn btn-primary" onclick="openVolunteerModal()">Join Vanguard</button>
-              <a href="#feed" class="btn" style="background:rgba(255,255,255,0.12);color:var(--white);border:1px solid rgba(255,255,255,0.22);">Read Dispatches</a>
-            </div>
+        <div class="candidate-portrait-frame">
+          <img
+            id="mheshimiwaPortraitImg"
+            src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=900&q=80"
+            alt="Hon. David Kamau — Parliamentary Candidate 2027"
+          />
+        </div>
+        <div class="beadwork-strip"></div>
+        <div class="candidate-portrait-caption">
+          <div class="candidate-role-tag" id="mheshimiwaRoleTag">Member of Parliament Aspirant &bull; 2027</div>
+          <h4 id="mheshimiwaFullName">Hon. David Kamau</h4>
+          <p id="mheshimiwaBioTagline">Grassroots leader championing transparent NG-CDF stewardship, youth digital hubs, and water security across every ward.</p>
+          <div class="candidate-cta-row">
+            <button type="button" class="btn btn-primary" onclick="openVolunteerModal()">Join Vanguard</button>
+            <a href="#feed" class="btn" style="background:rgba(255,255,255,0.12);color:var(--white);border:1px solid rgba(255,255,255,0.22);">Read Dispatches</a>
           </div>
         </div>
+      </div>
       <div class="hero-stats-card">
         <h3>Manyatta &amp; Ward Pulse</h3>
         <p>Live grassroots engagement synced with Turso</p>
@@ -1981,8 +1981,14 @@
   </script>
   <script>
     (function hydrateCandidateProfile() {
-      fetch('/api/profile')
-        .then((res) => (res.ok ? res.json() : null))
+      fetch('/api/profile', { cache: 'no-store' })
+        .then(async (res) => {
+          if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(`GET /api/profile failed (${res.status}): ${errText}`);
+          }
+          return res.json();
+        })
         .then((profile) => {
           if (!profile) return;
 
@@ -1999,7 +2005,9 @@
           if (nameEl && profile.full_name) nameEl.textContent = profile.full_name;
           if (bioEl && profile.tagline) bioEl.textContent = profile.tagline;
         })
-        .catch(() => {});
+        .catch((err) => {
+          console.error('[Profile Hydration]', err);
+        });
     })();
   </script>
 </body>
