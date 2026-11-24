@@ -101,7 +101,7 @@ function renderPosts() {
       (post.content && post.content.toLowerCase().includes(q));
     return matchesCat && matchesSearch;
   });
-
+  observePostCards();
   if (filtered.length === 0) {
     grid.innerHTML = '';
     statusEl.style.display = 'block';
@@ -453,6 +453,49 @@ if (volunteerFormEl) {
     }
   });
 }
+let postRevealObserver = null;
 
+function observePostCards() {
+  const cards = document.querySelectorAll('#postsGrid .post-card');
+  if (!cards.length) return;
+
+  if (!('IntersectionObserver' in window)) {
+    cards.forEach((card) => card.classList.add('is-visible'));
+    return;
+  }
+
+  if (!postRevealObserver) {
+    postRevealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.remove('reveal-pending');
+            entry.target.classList.add('is-visible');
+            postRevealObserver.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -30px 0px'
+      }
+    );
+  }
+
+  cards.forEach((card, index) => {
+    card.classList.add('reveal-on-scroll');
+    const rect = card.getBoundingClientRect();
+    const alreadyInView = rect.top < window.innerHeight * 0.95;
+
+    if (alreadyInView) {
+      card.style.transitionDelay = `${Math.min(index * 70, 280)}ms`;
+      card.classList.add('is-visible');
+    } else {
+      card.style.transitionDelay = `${Math.min((index % 3) * 80, 240)}ms`;
+      card.classList.add('reveal-pending');
+      postRevealObserver.observe(card);
+    }
+  });
+}
 // Boot application
 fetchPosts();
