@@ -5,7 +5,7 @@ let searchQuery = '';
 const openCommentDrawers = new Set();
 
 function escapeHTML(str) {
-  if (!str) return ''; 
+  if (!str) return '';
   return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -52,6 +52,12 @@ function formatDate(isoString) {
   const d = new Date(isoString);
   if (isNaN(d.getTime())) return 'Recent';
   return d.toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function trackCampaignEvent(eventName, params = {}) {
+  if (typeof window.gtag === 'function') {
+    window.gtag('event', eventName, params);
+  }
 }
 
 // Fetch posts & comments from Express -> Turso API
@@ -101,7 +107,7 @@ function renderPosts() {
       (post.content && post.content.toLowerCase().includes(q));
     return matchesCat && matchesSearch;
   });
-  observePostCards();
+
   if (filtered.length === 0) {
     grid.innerHTML = '';
     statusEl.style.display = 'block';
@@ -175,13 +181,17 @@ function renderPosts() {
       `;
     })
     .join('');
+
+  observePostCards();
 }
 
 function toggleComments(postId) {
-  if (openCommentDrawers.has(postId)) {
-    openCommentDrawers.delete(postId);
-  } else {
+  const willOpen = !openCommentDrawers.has(postId);
+  if (willOpen) {
     openCommentDrawers.add(postId);
+    trackCampaignEvent('toggle_enkiguena_drawer', { post_id: postId });
+  } else {
+    openCommentDrawers.delete(postId);
   }
   renderPosts();
 }
@@ -213,6 +223,12 @@ async function handleLike(postId) {
 
     const masterPost = allPosts.find((p) => Number(p.id) === numericId);
     if (masterPost) masterPost.likes = Number(data.likes);
+
+    trackCampaignEvent('endorse_dispatch', {
+      post_id: numericId,
+      action: nextAction,
+      ward: (post && post.ward) || 'All Wards'
+    });
 
     renderPosts();
 
@@ -249,6 +265,11 @@ async function postCommentToApi(postId, author_name, ward, body) {
     masterPost.comments.push(newComment);
   }
 
+  trackCampaignEvent('post_enkiguena_comment', {
+    post_id: postId,
+    ward: ward || 'Constituent'
+  });
+
   openCommentDrawers.add(postId);
   renderPosts();
 }
@@ -275,6 +296,12 @@ async function submitInlineComment(event, postId) {
 function openReader(postId) {
   const post = posts.find((p) => p.id === postId);
   if (!post) return;
+
+  trackCampaignEvent('open_dispatch_reader', {
+    post_id: post.id,
+    category: post.category || 'General',
+    ward: post.ward || 'All Wards'
+  });
 
   const isLiked = localStorage.getItem(`liked_post_${post.id}`) === 'true';
   const comments = post.comments || [];
@@ -353,12 +380,21 @@ function toggleMobileNav() {
   document.getElementById('navLinks').classList.toggle('open');
 }
 
+function closeMobileNav() {
+  const navLinks = document.getElementById('navLinks');
+  if (navLinks) navLinks.classList.remove('open');
+}
+
 function filterByNav(category) {
   activeCategory = category;
   document.querySelectorAll('.tab-btn').forEach((b) => {
     b.classList.toggle('active', b.dataset.category === category);
   });
-  document.getElementById('navLinks').classList.remove('open');
+  closeMobileNav();
+  trackCampaignEvent('filter_dispatch_category', {
+    category,
+    source: 'nav'
+  });
   renderPosts();
 }
 
@@ -369,6 +405,7 @@ function searchByWard(wardName) {
   document.querySelectorAll('.tab-btn').forEach((b) => {
     b.classList.toggle('active', b.dataset.category === 'All');
   });
+  trackCampaignEvent('search_dispatch_ward', { ward: wardName });
   renderPosts();
 }
 
@@ -380,6 +417,7 @@ function resetFilters(e) {
   document.querySelectorAll('.tab-btn').forEach((b) => {
     b.classList.toggle('active', b.dataset.category === 'All');
   });
+  trackCampaignEvent('reset_dispatch_filters');
   renderPosts();
 }
 
@@ -388,12 +426,24 @@ document.getElementById('categoryTabs').addEventListener('click', (e) => {
   document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
   e.target.classList.add('active');
   activeCategory = e.target.dataset.category;
+  trackCampaignEvent('filter_dispatch_category', {
+    category: activeCategory,
+    source: 'tabs'
+  });
   renderPosts();
 });
 
+let searchTrackTimer = null;
 document.getElementById('searchInput').addEventListener('input', (e) => {
   searchQuery = e.target.value.trim();
   renderPosts();
+
+  clearTimeout(searchTrackTimer);
+  if (searchQuery.length >= 2) {
+    searchTrackTimer = setTimeout(() => {
+      trackCampaignEvent('search_dispatches', { search_term: searchQuery });
+    }, 600);
+  }
 });
 
 document.querySelectorAll('.modal-backdrop').forEach((backdrop) => {
@@ -408,8 +458,8 @@ function openVolunteerModal() {
     successBox.style.display = 'none';
     successBox.textContent = '';
   }
-  const navLinks = document.getElementById('navLinks');
-  if (navLinks) navLinks.classList.remove('open');
+  closeMobileNav();
+  trackCampaignEvent('open_volunteer_modal');
   document.getElementById('volunteerModal').classList.add('open');
 }
 
@@ -440,6 +490,11 @@ if (volunteerFormEl) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Could not register volunteer');
 
+      trackCampaignEvent('volunteer_registered', {
+        ward: payload.ward,
+        role: payload.role
+      });
+
       volunteerFormEl.reset();
       if (successBox) {
         successBox.textContent = `Asante, ${data.full_name}! You are registered for ${data.ward} (${data.role}). Our Secretariat team will contact you shortly.`;
@@ -453,6 +508,7 @@ if (volunteerFormEl) {
     }
   });
 }
+
 let postRevealObserver = null;
 
 function observePostCards() {
@@ -497,10 +553,6 @@ function observePostCards() {
     }
   });
 }
-//close navlinks
-function closeMobileNav() {
-  const navLinks = document.getElementById('navLinks');
-  if (navLinks) navLinks.classList.remove('open');
-}
+
 // Boot application
 fetchPosts();
