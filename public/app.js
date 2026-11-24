@@ -5,7 +5,7 @@ let searchQuery = '';
 const openCommentDrawers = new Set();
 
 function escapeHTML(str) {
-  if (!str) return '';
+  if (!str) return ''; 
   return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -496,6 +496,11 @@ function observePostCards() {
       postRevealObserver.observe(card);
     }
   });
+}
+//close navlinks
+function closeMobileNav() {
+  const navLinks = document.getElementById('navLinks');
+  if (navLinks) navLinks.classList.remove('open');
 }
 // Boot application
 fetchPosts();
