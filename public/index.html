@@ -1979,5 +1979,28 @@
         });
     })();
   </script>
+  <script>
+    (function hydrateCandidateProfile() {
+      fetch('/api/profile')
+        .then((res) => (res.ok ? res.json() : null))
+        .then((profile) => {
+          if (!profile) return;
+
+          const imgEl = document.getElementById('mheshimiwaPortraitImg');
+          const roleEl = document.getElementById('mheshimiwaRoleTag');
+          const nameEl = document.getElementById('mheshimiwaFullName');
+          const bioEl = document.getElementById('mheshimiwaBioTagline');
+
+          if (imgEl && profile.portrait_url) {
+            imgEl.src = profile.portrait_url;
+            imgEl.alt = profile.full_name || 'Mheshimiwa Official Portrait';
+          }
+          if (roleEl && profile.role_title) roleEl.textContent = profile.role_title;
+          if (nameEl && profile.full_name) nameEl.textContent = profile.full_name;
+          if (bioEl && profile.tagline) bioEl.textContent = profile.tagline;
+        })
+        .catch(() => {});
+    })();
+  </script>
 </body>
 </html>

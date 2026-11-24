@@ -86,6 +86,14 @@ async function initDatabase() {
       status TEXT DEFAULT 'Pending',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
+    `CREATE TABLE IF NOT EXISTS candidate_profile (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      full_name TEXT NOT NULL,
+      role_title TEXT NOT NULL,
+      tagline TEXT NOT NULL,
+      portrait_url TEXT NOT NULL,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
     `CREATE TABLE IF NOT EXISTS ward_scorecards (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       ward_key TEXT UNIQUE NOT NULL,
@@ -233,6 +241,19 @@ async function initDatabase() {
         args: ['youtube', 'YouTube', 'https://youtube.com/', 5]
       }
     ], 'write');
+  }
+  const existingProfile = await db.execute('SELECT COUNT(*) as count FROM candidate_profile');
+  if (Number(existingProfile.rows[0].count) === 0) {
+    await db.execute({
+      sql: `INSERT INTO candidate_profile (id, full_name, role_title, tagline, portrait_url)
+            VALUES (1, ?, ?, ?, ?)`,
+      args: [
+        'Hon. David Kamau',
+        'Member of Parliament Aspirant • 2027',
+        'Grassroots leader championing transparent NG-CDF stewardship, youth digital hubs, and water security across every ward.',
+        'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=900&q=80'
+      ]
+    });
   }
   // Seed initial Enkiguena comments if comments table is empty
   const existingComments = await db.execute('SELECT COUNT(*) as count FROM comments');
@@ -766,6 +787,60 @@ app.put('/api/socials/:id', async (req, res) => {
   } catch (err) {
     console.error('Error updating social channel:', err);
     res.status(500).json({ error: 'Failed to update social channel' });
+  }
+});
+// GET Mheshimiwa candidate profile (Public)
+app.get('/api/profile', async (req, res) => {
+  try {
+    const result = await db.execute('SELECT * FROM candidate_profile WHERE id = 1');
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Candidate profile not found' });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Error fetching candidate profile:', err);
+    res.status(500).json({ error: 'Failed to load candidate profile' });
+  }
+});
+
+// PUT update Mheshimiwa candidate profile (Protected by ADMIN_SECRET)
+app.put('/api/profile', async (req, res) => {
+  const { full_name, role_title, tagline, portrait_url } = req.body || {};
+
+  if (!isAuthorizedAdmin(req)) {
+    return res.status(401).json({ error: 'Invalid Campaign Admin Passkey' });
+  }
+  if (!full_name || !role_title || !tagline || !portrait_url) {
+    return res.status(400).json({ error: 'Full name, role title, tagline, and portrait URL are required' });
+  }
+
+  const cleanPortrait = portrait_url.trim();
+  if (!/^(\/|https?:\/\/)/i.test(cleanPortrait)) {
+    return res.status(400).json({ error: 'Portrait URL must start with https://, http://, or /' });
+  }
+
+  try {
+    const updated = await db.execute({
+      sql: `UPDATE candidate_profile
+            SET full_name = ?,
+                role_title = ?,
+                tagline = ?,
+                portrait_url = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = 1
+            RETURNING *`,
+      args: [
+        full_name.trim(),
+        role_title.trim(),
+        tagline.trim(),
+        cleanPortrait
+      ]
+    });
+
+    res.json(updated.rows[0]);
+  } catch (err) {
+    console.error('Error updating candidate profile:', err);
+    res.status(500).json({ error: 'Failed to update candidate profile' });
   }
 });
 // Serve Secretariat Dashboard at /admin (before wildcard fallback)

@@ -1,6 +1,7 @@
 let posts = [];
 let volunteers = [];
 let socials = [];
+let candidateProfile = null;
 let editingSocialId = null;
 let scorecards = [];
 let editingScorecardId = null;
@@ -69,19 +70,21 @@ document.getElementById('adminLoginForm').addEventListener('submit', async (e) =
 
 async function loadDashboardData() {
   const passkey = getAdminKey();
-  const [postsRes, volRes, cardsRes, socialsRes] = await Promise.all([
+  const [postsRes, volRes, cardsRes, socialsRes, profileRes] = await Promise.all([
     fetch('/api/posts'),
     fetch('/api/volunteers', {
       headers: { 'x-admin-key': passkey }
     }),
     fetch('/api/scorecards'),
-    fetch('/api/socials')
+    fetch('/api/socials'),
+    fetch('/api/profile')
   ]);
 
   posts = await postsRes.json();
   volunteers = volRes.ok ? await volRes.json() : [];
   scorecards = cardsRes.ok ? await cardsRes.json() : [];
   socials = socialsRes.ok ? await socialsRes.json() : [];
+  candidateProfile = profileRes.ok ? await profileRes.json() : null;
 
   syncWardFilterOptions();
   renderDashboard();
@@ -318,6 +321,63 @@ function renderDashboard() {
         `;
       })
       .join('');
+  } else if (currentTab === 'profile') {
+    const profile = candidateProfile || {
+      full_name: 'Hon. David Kamau',
+      role_title: 'Member of Parliament Aspirant • 2027',
+      tagline: '',
+      portrait_url: ''
+    };
+
+    listEl.innerHTML = `
+      <div class="item-row" style="display:block;background:var(--slate-50);">
+        <div class="item-meta">Mheshimiwa Official Portrait &amp; Hero Bio</div>
+        <div style="display:flex;align-items:center;gap:1rem;margin:0.85rem 0 1.1rem;padding:0.85rem;background:var(--white);border:1px solid var(--slate-200);border-radius:10px;">
+          <img
+            id="profilePreviewImg"
+            src="${escapeHTML(profile.portrait_url)}"
+            alt="${escapeHTML(profile.full_name)}"
+            style="width:76px;height:76px;object-fit:cover;object-position:top center;border-radius:10px;border:2px solid var(--crimson-600);background:var(--obsidian-900);flex-shrink:0;"
+          />
+          <div>
+            <div style="font-size:0.75rem;font-weight:800;text-transform:uppercase;color:var(--crimson-700);">${escapeHTML(profile.role_title)}</div>
+            <div style="font-weight:800;font-size:1.05rem;color:var(--obsidian-900);">${escapeHTML(profile.full_name)}</div>
+            <div style="font-size:0.83rem;color:var(--slate-600);margin-top:0.2rem;">${escapeHTML(profile.tagline)}</div>
+          </div>
+        </div>
+
+        <form onsubmit="saveCandidateProfile(event)">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.65rem;">
+            <div class="form-group">
+              <label>Candidate Full Name</label>
+              <input type="text" id="profFullName" class="form-input" value="${escapeHTML(profile.full_name)}" required />
+            </div>
+            <div class="form-group">
+              <label>Title / Office Tag</label>
+              <input type="text" id="profRoleTitle" class="form-input" value="${escapeHTML(profile.role_title)}" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Official Portrait URL (https://... or /images/...)</label>
+            <input
+              type="text"
+              id="profPortraitUrl"
+              class="form-input"
+              value="${escapeHTML(profile.portrait_url)}"
+              oninput="previewProfilePortrait(this.value)"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label>Hero Bio Tagline</label>
+            <textarea id="profTagline" class="form-input" style="min-height:80px;" required>${escapeHTML(profile.tagline)}</textarea>
+          </div>
+          <div class="item-actions">
+            <button type="submit" id="saveProfileBtn" class="btn btn-primary">Save Profile to Turso</button>
+          </div>
+        </form>
+      </div>
+    `;
   } else if (currentTab === 'socials') {
     if (socials.length === 0) {
       listEl.innerHTML = `<p style="padding:1.5rem;color:var(--slate-500);">No social channels configured yet.</p>`;
@@ -375,6 +435,7 @@ function switchAdminTab(tab) {
   document.getElementById('tabVolunteersBtn').classList.toggle('active', tab === 'volunteers');
   document.getElementById('tabScorecardsBtn').classList.toggle('active', tab === 'scorecards');
   document.getElementById('tabSocialsBtn').classList.toggle('active', tab === 'socials');
+  document.getElementById('tabProfileBtn').classList.toggle('active', tab === 'profile');
   renderDashboard();
 }
 
@@ -508,7 +569,51 @@ function cancelEditScorecard() {
   editingScorecardId = null;
   renderDashboard();
 }
+function previewProfilePortrait(url) {
+  const img = document.getElementById('profilePreviewImg');
+  if (img && url.trim()) {
+    img.src = url.trim();
+  }
+}
 
+async function saveCandidateProfile(event) {
+  event.preventDefault();
+  const passkey = getAdminKey();
+  const btn = document.getElementById('saveProfileBtn');
+
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+
+  const payload = {
+    adminKey: passkey,
+    full_name: document.getElementById('profFullName').value.trim(),
+    role_title: document.getElementById('profRoleTitle').value.trim(),
+    portrait_url: document.getElementById('profPortraitUrl').value.trim(),
+    tagline: document.getElementById('profTagline').value.trim()
+  };
+
+  try {
+    const res = await fetch('/api/profile', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-key': passkey
+      },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to update candidate profile');
+
+    candidateProfile = data;
+    renderDashboard();
+    alert('Candidate portrait and bio updated in Turso!');
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Save Profile to Turso';
+  }
+}
 async function saveScorecard(event, scorecardId) {
   event.preventDefault();
   const passkey = getAdminKey();
