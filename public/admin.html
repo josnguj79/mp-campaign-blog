@@ -62,7 +62,28 @@
       line-height: 1.55;
     }
     h1, h2, h3 { font-family: 'Merriweather', Georgia, serif; }
+    @keyframes btnSpinnerSpin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
 
+    .btn-spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: btnSpinnerSpin 0.7s linear infinite;
+      vertical-align: -2px;
+      margin-right: 0.4rem;
+    }
+
+    .btn.is-loading {
+      opacity: 0.82;
+      cursor: wait;
+    }
     /* Maasai Beadwork Divider Strip */
     .beadwork-strip {
       height: 6px;

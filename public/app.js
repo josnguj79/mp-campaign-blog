@@ -283,13 +283,14 @@ async function submitInlineComment(event, postId) {
   if (!author_name || !body) return;
 
   const btn = form.querySelector('button[type="submit"]');
-  btn.disabled = true;
+  setButtonLoading(btn, true, 'Posting...');
   try {
     await postCommentToApi(postId, author_name, ward, body);
+    form.reset();
   } catch (err) {
     alert(err.message);
   } finally {
-    btn.disabled = false;
+    setButtonLoading(btn, false);
   }
 }
 
@@ -361,17 +362,16 @@ async function submitModalComment(event, postId) {
   if (!author_name || !body) return;
 
   const btn = form.querySelector('button[type="submit"]');
-  btn.disabled = true;
+  setButtonLoading(btn, true, 'Submitting...');
   try {
     await postCommentToApi(postId, author_name, ward, body);
     openReader(postId);
   } catch (err) {
     alert(err.message);
   } finally {
-    btn.disabled = false;
+    setButtonLoading(btn, false);
   }
 }
-
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
 }
@@ -470,8 +470,7 @@ if (volunteerFormEl) {
     const btn = document.getElementById('volSubmitBtn');
     const successBox = document.getElementById('volunteerSuccessBox');
 
-    btn.disabled = true;
-    btn.textContent = 'Submitting Registration...';
+    setButtonLoading(btn, true, 'Submitting Registration...');
 
     const payload = {
       full_name: document.getElementById('volFullName').value.trim(),
@@ -503,8 +502,7 @@ if (volunteerFormEl) {
     } catch (err) {
       alert(err.message);
     } finally {
-      btn.disabled = false;
-      btn.textContent = 'Submit Volunteer Registration';
+      setButtonLoading(btn, false);
     }
   });
 }
@@ -553,6 +551,23 @@ function observePostCards() {
     }
   });
 }
-
+function setButtonLoading(btn, isLoading, loadingText = 'Submitting...') {
+  if (!btn) return;
+  if (isLoading) {
+    if (!btn.dataset.originalHtml) {
+      btn.dataset.originalHtml = btn.innerHTML;
+    }
+    btn.disabled = true;
+    btn.classList.add('is-loading');
+    btn.innerHTML = `<span class="btn-spinner" aria-hidden="true"></span>${escapeHTML(loadingText)}`;
+  } else {
+    btn.disabled = false;
+    btn.classList.remove('is-loading');
+    if (btn.dataset.originalHtml) {
+      btn.innerHTML = btn.dataset.originalHtml;
+      delete btn.dataset.originalHtml;
+    }
+  }
+}
 // Boot application
 fetchPosts();

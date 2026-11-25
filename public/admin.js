@@ -581,7 +581,7 @@ async function saveCandidateProfile(event) {
   const passkey = getAdminKey();
   const btn = document.getElementById('saveProfileBtn');
 
-  btn.disabled = true;
+  setButtonLoading(btn, false);
   btn.textContent = 'Saving...';
 
   const payload = {
@@ -658,6 +658,24 @@ async function deleteVolunteer(volunteerId) {
     await loadDashboardData();
   } catch (err) {
     alert(err.message);
+  }
+}
+function setButtonLoading(btn, isLoading, loadingText = 'Submitting...') {
+  if (!btn) return;
+  if (isLoading) {
+    if (!btn.dataset.originalHtml) {
+      btn.dataset.originalHtml = btn.innerHTML;
+    }
+    btn.disabled = true;
+    btn.classList.add('is-loading');
+    btn.innerHTML = `<span class="btn-spinner" aria-hidden="true"></span>${escapeHTML(loadingText)}`;
+  } else {
+    btn.disabled = false;
+    btn.classList.remove('is-loading');
+    if (btn.dataset.originalHtml) {
+      btn.innerHTML = btn.dataset.originalHtml;
+      delete btn.dataset.originalHtml;
+    }
   }
 }
 // Auto-unlock if session passkey is already stored
